@@ -10,6 +10,7 @@ class fault_buffer
         ~fault_buffer();
 
         void add_event(int _time_stamp, std::string _fault_message);
+        void add_event(std::string _time_stamp, std::string _fault_message);
         int get_queue_length();
         void print_buffer();
         void read_buffer();

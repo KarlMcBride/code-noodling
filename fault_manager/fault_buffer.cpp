@@ -2,10 +2,23 @@
 #include <fstream>
 #include <queue>
 
+#include <boost/lexical_cast.hpp>
+#include <string>
+
 #include "fault_buffer.hpp"
 #include "fault_manager_constants.hpp"
 
-//using namespace std;
+int str2int (const std::string &str)
+{
+    int number;
+    std::istringstream iss (str);
+    iss >> number;
+    if (iss.fail())
+    {
+        // something wrong happened
+    }
+    return number;
+}
 
 // Pass queue by value so that original queue isn't modified
 template<typename T> void print_queue(T q)
@@ -80,6 +93,11 @@ void fault_buffer::add_event(int _time_stamp, std::string _fault_message)
     }
 }
 
+void fault_buffer::add_event(std::string _time_stamp, std::string _fault_message)
+{
+    add_event(str2int(_time_stamp), _fault_message);
+}
+
 int fault_buffer::get_queue_length()
 {
     return fault_queue.size();
@@ -109,6 +127,8 @@ void fault_buffer::read_buffer()
                 line.erase(0, pos + delimiter.length());
             }
             //std::cout << line << std::endl;
+
+            add_event(token, line);
         }
         fault_file.close();
     }

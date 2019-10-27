@@ -3,6 +3,7 @@
 
 #include <queue>
 #include <iostream>
+#include <ctime>
 
 #include "fault_buffer.hpp"
 
@@ -10,6 +11,8 @@ int main()
 {
     fault_buffer buffer_instance;
     buffer_instance.print_buffer();
+
+    srand(time(NULL));
 
     for(int n = 0; n < 5; n++)
     {
