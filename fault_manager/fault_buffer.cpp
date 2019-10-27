@@ -91,6 +91,8 @@ void fault_buffer::add_event(int _time_stamp, std::string _fault_message)
     {
         fault_queue.pop();
     }
+
+    new_events_to_save = true;
 }
 
 void fault_buffer::add_event(std::string _time_stamp, std::string _fault_message)
@@ -141,12 +143,17 @@ void fault_buffer::read_buffer()
 
 void fault_buffer::write_buffer()
 {
-    std::ofstream fault_file;
-    fault_file.open(FM_CONSTANTS::DATA_STORAGE_FILE);
-    while(!fault_queue.empty())
+    if (new_events_to_save)
     {
-        fault_file << fault_queue.top().time_stamp << ":" << fault_queue.top().event_string << std::endl;
-        fault_queue.pop();
+        std::ofstream fault_file;
+        fault_file.open(FM_CONSTANTS::DATA_STORAGE_FILE);
+        while(!fault_queue.empty())
+        {
+            fault_file << fault_queue.top().time_stamp << ":" << fault_queue.top().event_string << std::endl;
+            fault_queue.pop();
+        }
+        fault_file.close();
+
+        new_events_to_save = false;
     }
-    fault_file.close();
 }

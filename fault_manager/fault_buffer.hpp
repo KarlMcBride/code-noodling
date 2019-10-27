@@ -15,6 +15,9 @@ class fault_buffer
         void print_buffer();
         void read_buffer();
         void write_buffer();
+
+    private:
+        bool new_events_to_save;
 };
 
 
