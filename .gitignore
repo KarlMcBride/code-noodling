@@ -1,0 +1,5 @@
+# Files to be ignored
+data_store.txt
+
+# File extensions to be ignored
+*.ex
