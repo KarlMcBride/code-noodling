@@ -7,6 +7,7 @@
 
 #include "fault_buffer.hpp"
 #include "fault_manager_constants.hpp"
+#include "fault_struct.hpp"
 
 int str2int (const std::string &str)
 {
@@ -31,38 +32,6 @@ template<typename T> void print_queue(T q)
     }
     std::cout << '\n';
 }
-
-struct event_t
-{
-    std::string event_string;
-    int time_stamp;
-
-    event_t(int _time_stamp, std::string _event_string)
-    {
-        time_stamp = _time_stamp;
-        event_string = _event_string;
-    }
-
-    void print(void)
-    {
-        std::cout << time_stamp << " : " << event_string << std::endl;
-    }
-
-    bool operator<(const event_t& rhs_struct) const
-    {
-       return (time_stamp < rhs_struct.time_stamp);
-    }
-
-    bool operator>(const event_t& rhs_struct) const
-    {
-       return (rhs_struct.time_stamp < time_stamp);
-    }
-
-    bool operator==(const event_t& rhs_struct) const
-    {
-       return (time_stamp == rhs_struct.time_stamp);
-    }
-};
 
 // Sorting rule that is applied when inserting new items into the priority queue
 auto sortRuleLambda = [] (event_t const& s1, event_t const& s2) -> bool
