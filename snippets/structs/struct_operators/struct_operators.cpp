@@ -3,12 +3,12 @@
 
 using namespace std;
 
-struct event_t
+struct struct_operators_t
 {
     int time_stamp;
     string event_string;
 
-    event_t(int _time_stamp, string _event_string)
+    struct_operators_t(int _time_stamp, string _event_string)
     {
         time_stamp = _time_stamp;
         event_string = _event_string;
@@ -21,17 +21,17 @@ struct event_t
         std::cout << time_stamp << " : " << event_string << std::endl;
     }
 
-    bool operator<(const event_t& rhs_struct) const
+    bool operator<(const struct_operators_t& rhs_struct) const
     {
        return (time_stamp < rhs_struct.time_stamp);
     }
 
-    bool operator>(const event_t& rhs_struct) const
+    bool operator>(const struct_operators_t& rhs_struct) const
     {
        return (rhs_struct.time_stamp < time_stamp);
     }
 
-    bool operator==(const event_t& rhs_struct) const
+    bool operator==(const struct_operators_t& rhs_struct) const
     {
        return (time_stamp == rhs_struct.time_stamp);
     }
@@ -39,9 +39,9 @@ struct event_t
 
 int main()
 {
-    event_t event_1 = {1, "First event"};
-    event_t event_2 = {2, "Second event"};
-    event_t event_1a = {1, "Dupe first event"};
+    struct_operators_t event_1 = {1, "First event"};
+    struct_operators_t event_2 = {2, "Second event"};
+    struct_operators_t event_1a = {1, "Dupe first event"};
 
 
     cout << "event_1 < event_2: " << (event_1 < event_2) << std::endl;

@@ -18,12 +18,12 @@ template<typename T> void print_queue(T q)
 
 using namespace std;
 
-struct event_t
+struct priority_queue_struct_t
 {
     string event_string;
     int time_stamp;
 
-    event_t(int _time_stamp, string _event_string)
+    priority_queue_struct_t(int _time_stamp, string _event_string)
     {
         time_stamp = _time_stamp;
         event_string = _event_string;
@@ -34,17 +34,17 @@ struct event_t
         std::cout << time_stamp << " : " << event_string << std::endl;
     }
 
-    bool operator<(const event_t& rhs_struct) const
+    bool operator<(const priority_queue_struct_t& rhs_struct) const
     {
        return (time_stamp < rhs_struct.time_stamp);
     }
 
-    bool operator>(const event_t& rhs_struct) const
+    bool operator>(const priority_queue_struct_t& rhs_struct) const
     {
        return (rhs_struct.time_stamp < time_stamp);
     }
 
-    bool operator==(const event_t& rhs_struct) const
+    bool operator==(const priority_queue_struct_t& rhs_struct) const
     {
        return (time_stamp == rhs_struct.time_stamp);
     }
@@ -52,18 +52,18 @@ struct event_t
 
 int main()
 {
-    auto sortRuleLambda = [] (event_t const& s1, event_t const& s2) -> bool
+    auto sortRuleLambda = [] (priority_queue_struct_t const& s1, priority_queue_struct_t const& s2) -> bool
     {
        return s1.time_stamp > s2.time_stamp;
     };
 
-    std::priority_queue<event_t, std::vector<event_t>, decltype(sortRuleLambda)> q1(sortRuleLambda);
+    std::priority_queue<priority_queue_struct_t, std::vector<priority_queue_struct_t>, decltype(sortRuleLambda)> q1(sortRuleLambda);
 
     for(int n = 0; n < 3; n++)
     {
         int rand_num = rand() % 10000 + 1;
         string temp_string = "Event " + to_string(rand_num);
-        event_t temp_struct = {rand_num, temp_string};
+        priority_queue_struct_t temp_struct = {rand_num, temp_string};
         q1.push(temp_struct);
     }
     print_queue(q1);

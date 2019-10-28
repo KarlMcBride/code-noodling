@@ -34,12 +34,12 @@ template<typename T> void print_queue(T q)
 }
 
 // Sorting rule that is applied when inserting new items into the priority queue
-auto sortRuleLambda = [] (event_t const& s1, event_t const& s2) -> bool
+auto sortRuleLambda = [] (fault_event_t const& s1, fault_event_t const& s2) -> bool
 {
     return s1 > s2;
 };
 
-std::priority_queue<event_t, std::vector<event_t>, decltype(sortRuleLambda)> fault_queue(sortRuleLambda);
+std::priority_queue<fault_event_t, std::vector<fault_event_t>, decltype(sortRuleLambda)> fault_queue(sortRuleLambda);
 
 fault_buffer::fault_buffer()
 {
@@ -53,7 +53,7 @@ fault_buffer::~fault_buffer()
 
 void fault_buffer::add_event(int _time_stamp, std::string _fault_message)
 {
-    event_t new_event = {_time_stamp, _fault_message};
+    fault_event_t new_event = {_time_stamp, _fault_message};
     fault_queue.push(new_event);
 
     while (get_queue_length() > FM_CONSTANTS::MAX_BUFFER_SIZE)
