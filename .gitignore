@@ -1,3 +1,6 @@
+# Directories to be ignored
+.vscode
+
 # Files to be ignored
 data_store.txt
 
