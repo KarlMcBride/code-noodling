@@ -1,9 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
-
-#include <boost/lexical_cast.hpp>
 #include <string>
+#include <sstream>
+
+#include <boost/fusion/adapted/struct.hpp>
+#include <boost/fusion/include/for_each.hpp>
+#include <boost/phoenix/phoenix.hpp>
 
 #include "fault_buffer.hpp"
 #include "fault_manager_constants.hpp"
@@ -16,7 +19,7 @@ int str2int (const std::string &str)
     iss >> number;
     if (iss.fail())
     {
-        // something wrong happened
+        // TODO: add in conversion failure notifier
     }
     return number;
 }
@@ -110,15 +113,28 @@ void fault_buffer::read_buffer()
     std::cout << std::endl;
 }
 
+
+// Apply boost magic to allow structure to be interpreted during for_each/arg_name loop
+BOOST_FUSION_ADAPT_STRUCT(fault_event_t, (int, time_stamp) (std::string, event_string));
+
 void fault_buffer::write_buffer()
 {
     if (new_events_to_save)
     {
         std::ofstream fault_file;
         fault_file.open(FM_CONSTANTS::DATA_STORAGE_FILE);
+
+        // Loop through all events to be written to file
         while(!fault_queue.empty())
         {
-            fault_file << fault_queue.top().time_stamp << ":" << fault_queue.top().event_string << std::endl;
+            std::stringstream temp_event_line;
+            // Iterate over all members of the struct, appending each to stringstream
+            boost::fusion::for_each(fault_queue.top(), temp_event_line << boost::phoenix::arg_names::arg1 << ":");
+            // Remove trailing ':' by seeking back one character and writing a new line char
+            temp_event_line.seekp(-1, std::ios_base::end);
+            temp_event_line << "\n";
+            // Write stringstream to file
+            fault_file << temp_event_line.rdbuf();
             fault_queue.pop();
         }
         fault_file.close();
