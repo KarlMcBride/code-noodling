@@ -5,8 +5,8 @@
 
 struct fault_event_t
 {
-    std::string event_string;
     int time_stamp;
+    std::string event_string;
 
     fault_event_t(int _time_stamp, std::string _event_string)
     {

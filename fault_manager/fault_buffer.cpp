@@ -90,15 +90,13 @@ void fault_buffer::read_buffer()
     {
         while ( getline (fault_file, line) )
         {
-            std::string delimiter = ":";
-
             size_t pos = 0;
             std::string token;
-            while ((pos = line.find(delimiter)) != std::string::npos)
+            while ((pos = line.find(FM_CONSTANTS::DELIMITER)) != std::string::npos)
             {
                 token = line.substr(0, pos);
                 //std::cout << token << std::endl;
-                line.erase(0, pos + delimiter.length());
+                line.erase(0, pos + FM_CONSTANTS::DELIMITER.length());
             }
             //std::cout << line << std::endl;
 
@@ -129,7 +127,7 @@ void fault_buffer::write_buffer()
         {
             std::stringstream temp_event_line;
             // Iterate over all members of the struct, appending each to stringstream
-            boost::fusion::for_each(fault_queue.top(), temp_event_line << boost::phoenix::arg_names::arg1 << ":");
+            boost::fusion::for_each(fault_queue.top(), temp_event_line << boost::phoenix::arg_names::arg1 << FM_CONSTANTS::DELIMITER);
             // Remove trailing ':' by seeking back one character and writing a new line char
             temp_event_line.seekp(-1, std::ios_base::end);
             temp_event_line << "\n";
