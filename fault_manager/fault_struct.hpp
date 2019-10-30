@@ -14,7 +14,7 @@ struct fault_event_t
         event_string = _event_string;
     }
 
-    void print(void)
+    void print(void) const
     {
         std::cout << time_stamp << " : " << event_string << std::endl;
     }

@@ -30,7 +30,7 @@ template<typename T> void print_queue(T q)
     std::cout << "Queue size: " << q.size() << std::endl;
     while(!q.empty())
     {
-        std::cout << q.top().time_stamp << " : " << q.top().event_string << std::endl;
+        q.top().print();
         q.pop();
     }
     std::cout << '\n';
