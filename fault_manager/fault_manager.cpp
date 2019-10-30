@@ -5,11 +5,11 @@
 #include <iostream>
 #include <ctime>
 
-#include "fault_buffer.hpp"
+#include "fault_queue.hpp"
 
 int main()
 {
-    fault_buffer buffer_instance;
+    fault_queue buffer_instance;
     buffer_instance.print_buffer();
 
     srand(time(NULL));

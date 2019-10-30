@@ -8,7 +8,7 @@
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/phoenix/phoenix.hpp>
 
-#include "fault_buffer.hpp"
+#include "fault_queue.hpp"
 #include "fault_manager_constants.hpp"
 #include "fault_struct.hpp"
 
@@ -42,47 +42,47 @@ auto sortRuleLambda = [] (fault_event_t const& s1, fault_event_t const& s2) -> b
     return s1 > s2;
 };
 
-std::priority_queue<fault_event_t, std::vector<fault_event_t>, decltype(sortRuleLambda)> fault_queue(sortRuleLambda);
+std::priority_queue<fault_event_t, std::vector<fault_event_t>, decltype(sortRuleLambda)> priority_queue_instance(sortRuleLambda);
 
-fault_buffer::fault_buffer()
+fault_queue::fault_queue()
 {
     read_buffer();
 }
 
-fault_buffer::~fault_buffer()
+fault_queue::~fault_queue()
 {
     write_buffer();
 }
 
-void fault_buffer::add_event(int _time_stamp, std::string _fault_message)
+void fault_queue::add_event(int _time_stamp, std::string _fault_message)
 {
     fault_event_t new_event = {_time_stamp, _fault_message};
-    fault_queue.push(new_event);
+    priority_queue_instance.push(new_event);
 
     while (get_queue_length() > FM_CONSTANTS::MAX_BUFFER_SIZE)
     {
-        fault_queue.pop();
+        priority_queue_instance.pop();
     }
 
     new_events_to_save = true;
 }
 
-void fault_buffer::add_event(std::string _time_stamp, std::string _fault_message)
+void fault_queue::add_event(std::string _time_stamp, std::string _fault_message)
 {
     add_event(str2int(_time_stamp), _fault_message);
 }
 
-int fault_buffer::get_queue_length()
+int fault_queue::get_queue_length()
 {
-    return fault_queue.size();
+    return priority_queue_instance.size();
 }
 
-void fault_buffer::print_buffer()
+void fault_queue::print_buffer()
 {
-    print_queue(fault_queue);
+    print_queue(priority_queue_instance);
 }
 
-void fault_buffer::read_buffer()
+void fault_queue::read_buffer()
 {
     std::string line;
     std::ifstream fault_file(FM_CONSTANTS::DATA_STORAGE_FILE);
@@ -115,7 +115,7 @@ void fault_buffer::read_buffer()
 // Apply boost magic to allow structure to be interpreted during for_each/arg_name loop
 BOOST_FUSION_ADAPT_STRUCT(fault_event_t, (int, time_stamp) (std::string, event_string));
 
-void fault_buffer::write_buffer()
+void fault_queue::write_buffer()
 {
     if (new_events_to_save)
     {
@@ -123,17 +123,17 @@ void fault_buffer::write_buffer()
         fault_file.open(FM_CONSTANTS::DATA_STORAGE_FILE);
 
         // Loop through all events to be written to file
-        while(!fault_queue.empty())
+        while(!priority_queue_instance.empty())
         {
             std::stringstream temp_event_line;
             // Iterate over all members of the struct, appending each to stringstream
-            boost::fusion::for_each(fault_queue.top(), temp_event_line << boost::phoenix::arg_names::arg1 << FM_CONSTANTS::DELIMITER);
+            boost::fusion::for_each(priority_queue_instance.top(), temp_event_line << boost::phoenix::arg_names::arg1 << FM_CONSTANTS::DELIMITER);
             // Remove trailing ':' by seeking back one character and writing a new line char
             temp_event_line.seekp(-1, std::ios_base::end);
             temp_event_line << "\n";
             // Write stringstream to file
             fault_file << temp_event_line.rdbuf();
-            fault_queue.pop();
+            priority_queue_instance.pop();
         }
         fault_file.close();
 

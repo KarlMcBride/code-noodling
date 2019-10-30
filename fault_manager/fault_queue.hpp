@@ -3,15 +3,15 @@
 
 #include <string>
 
-class fault_buffer
+class fault_queue
 {
     public:
-        fault_buffer();
-        ~fault_buffer();
+        fault_queue();
+        ~fault_queue();
 
         void add_event(int _time_stamp, std::string _fault_message);
         void add_event(std::string _time_stamp, std::string _fault_message);
-        int get_queue_length();
+        int  get_queue_length();
         void print_buffer();
         void read_buffer();
         void write_buffer();
