@@ -1,5 +1,7 @@
 # Directories to be ignored
 .vscode
+build
+output
 
 # Files to be ignored
 data_store.txt
