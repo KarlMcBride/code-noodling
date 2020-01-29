@@ -26,6 +26,13 @@ template <typename value_type> struct file_data_t
     }
 };
 
+
+const std::string MANUFACTURER = "MANUFACTURER";
+const std::string MODEL        = "MODEL";
+const std::string HORSEPOWER   = "HORSEPOWER";
+const std::string DOOR_COUNT   = "DOOR_COUNT";
+
+
 struct struct_car_t
 {
     file_data_t<std::string> manufacturer;
@@ -50,19 +57,19 @@ struct struct_car_t
     struct_car_t(std::string _manufacturer, std::string _model, int _horsepower, int _door_count)
     {
         manufacturer.column_index = 0;
-        manufacturer.column_name = "MANUFACTURER";
+        manufacturer.column_name = MANUFACTURER;
         manufacturer.value = _manufacturer;
 
         model.column_index = 1;
-        model.column_name = "MODEL";
+        model.column_name = MODEL;
         model.value = _model;
 
         horsepower.column_index = 2;
-        horsepower.column_name = "HORSEPOWER";
+        horsepower.column_name = HORSEPOWER;
         horsepower.value = _horsepower;
 
         door_count.column_index = 3;
-        door_count.column_name = "DOOR_COUNT";
+        door_count.column_name = DOOR_COUNT;
         door_count.value = _door_count;
 
         file_data_line = manufacturer.value + ";" + model.value + ";" + std::to_string(horsepower.value) + ";" + std::to_string(door_count.value);
