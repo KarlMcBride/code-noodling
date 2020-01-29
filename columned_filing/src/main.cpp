@@ -23,7 +23,8 @@ int main()
 
     add_cars(car_queue);
     car_queue.print_forward();
-    car_queue.check_equality();
+    //car_queue.check_equality();
+    car_queue.write();
 
     return 0;
 }

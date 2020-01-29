@@ -31,6 +31,7 @@ struct struct_car_t
     file_data_t<std::string> model;
     file_data_t<int> horsepower;
     file_data_t<int> door_count;
+    std::string file_data_line;
 
     struct_car_t(std::string _manufacturer, std::string _model, int _horsepower, int _door_count)
     {
@@ -49,6 +50,8 @@ struct struct_car_t
         door_count.column_index = 3;
         door_count.column_name = "DOOR_COUNT";
         door_count.value = _door_count;
+
+        file_data_line = manufacturer.value + ";" + model.value + ";" + std::to_string(horsepower.value) + ";" + std::to_string(door_count.value);
     }
 
     std::string as_string(void) const
