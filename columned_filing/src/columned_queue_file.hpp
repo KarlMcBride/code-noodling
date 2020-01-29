@@ -2,7 +2,7 @@
 #define __COLUMNED_QUEUE_FILE_HPP
 
 
-template<class T> class columned_queue_file
+template<class data_type> class columned_queue_file
 {
     public:
         columned_queue_file(const int _max_items)
@@ -11,7 +11,7 @@ template<class T> class columned_queue_file
             std::cout << __LINE__ << " - Default constructor called, max size [ " << max_items << " ]" << std::endl;
         }
 
-        void add_item(T _new_item)
+        void add_item(data_type _new_item)
         {
             while(storageDeque.size() >= max_items)
             {
@@ -25,9 +25,9 @@ template<class T> class columned_queue_file
 
         void check_equality()
         {
-            for (T left_item : storageDeque)
+            for (data_type left_item : storageDeque)
             {
-                for (T right_item : storageDeque)
+                for (data_type right_item : storageDeque)
                 {
                     if (left_item == right_item)
                     {
@@ -48,16 +48,16 @@ template<class T> class columned_queue_file
         void print_forward()
         {
             std::cout << '\n';
-            for (int i = 0; i < storageDeque.size(); i++)
+            for (data_type item : storageDeque)
             {
-                std::cout << "print_forward: " << storageDeque[i].as_string() <<  std::endl;
+                std::cout << "print_forward: " << item.as_string() <<  std::endl;
             }
             std::cout << '\n';
         }
 
     private:
         int max_items = 0;
-        std::deque<T> storageDeque;
+        std::deque<data_type> storageDeque;
 };
 
 
