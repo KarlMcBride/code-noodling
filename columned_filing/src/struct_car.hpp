@@ -2,6 +2,7 @@
 #define __STRUCT_CAR_HPP
 
 #include <string>
+#include <vector>
 
 template <typename value_type> struct file_data_t
 {
@@ -32,6 +33,19 @@ struct struct_car_t
     file_data_t<int> horsepower;
     file_data_t<int> door_count;
     std::string file_data_line;
+    std::string file_header_line;
+
+    struct_car_t(std::vector<std::string> data_tokens, std::vector<std::string> data_header_tokens)
+    {
+        for(std::size_t i = 0; i < data_tokens.size(); i++)
+        {
+            std::cout << "struct_car_t: data_tokens: " << data_tokens[i] << '\n';
+        }
+        for(std::size_t i = 0; i < data_header_tokens.size(); i++)
+        {
+            std::cout << "struct_car_t: data_header_tokens: " << data_header_tokens[i] << '\n';
+        }
+    }
 
     struct_car_t(std::string _manufacturer, std::string _model, int _horsepower, int _door_count)
     {
@@ -52,6 +66,7 @@ struct struct_car_t
         door_count.value = _door_count;
 
         file_data_line = manufacturer.value + ";" + model.value + ";" + std::to_string(horsepower.value) + ";" + std::to_string(door_count.value);
+        file_header_line = manufacturer.column_name + ";" + model.column_name + ";" + horsepower.column_name + ";" + door_count.column_name;
     }
 
     std::string as_string(void) const

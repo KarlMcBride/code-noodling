@@ -25,6 +25,7 @@ int main()
     car_queue.print_forward();
     //car_queue.check_equality();
     car_queue.write();
+    car_queue.read();
 
     return 0;
 }

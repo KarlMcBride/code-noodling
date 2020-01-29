@@ -2,6 +2,7 @@
 #define __COLUMNED_QUEUE_FILE_HPP
 
 #include <iostream>
+#include <vector>
 
 template<class data_type> class columned_queue_file
 {
@@ -57,6 +58,50 @@ template<class data_type> class columned_queue_file
             std::cout << '\n';
         }
 
+        void read(void)
+        {
+            std::ifstream data_file(data_file_path);
+            std::string data_line;
+
+            if (data_file.is_open())
+            {
+                // Get file headers before loading data
+                getline(data_file, data_line);
+
+                size_t pos = 0;
+                std::vector<std::string> data_header_tokens;
+                // Parse each line based on delimiter and load it into the token array
+                while ((pos = data_line.find(FIELD_DELIMITER)) != std::string::npos)
+                {
+                    data_header_tokens.push_back(data_line.substr(0, pos));
+                    data_line.erase(0, pos + FIELD_DELIMITER.length());
+                }
+                // Final token will be by itself, capture it independently
+                data_header_tokens.push_back(data_line);
+
+                // Cycle through all lines in file
+                while ( getline(data_file, data_line) )
+                {
+                    std::cout << data_line << '\n';
+
+                    size_t pos = 0;
+                    std::vector<std::string> data_tokens;
+                    // Parse each line based on delimiter and load it into the token array
+                    while ((pos = data_line.find(FIELD_DELIMITER)) != std::string::npos)
+                    {
+                        data_tokens.push_back(data_line.substr(0, pos));
+                        data_line.erase(0, pos + FIELD_DELIMITER.length());
+                    }
+                    // Final token will be by itself, capture it independently
+                    data_tokens.push_back(data_line);
+
+                    // Create new data entry with parsed tokens
+                    data_type new_data_entry(data_tokens, data_header_tokens);
+                }
+                data_file.close();
+            }
+        }
+
         void write(void)
         {
             if (storageDeque.size() < 0)
@@ -66,7 +111,13 @@ template<class data_type> class columned_queue_file
             }
 
             std::ofstream data_file;
-            data_file.open(file_path);
+            data_file.open(data_file_path);
+
+            // Write data file headers first
+            if (storageDeque.size() > 0)
+            {
+                data_file << storageDeque.front().file_header_line << std::endl;
+            }
 
             for (data_type item : storageDeque)
             {
@@ -78,7 +129,9 @@ template<class data_type> class columned_queue_file
     private:
         int max_items = 0;
         std::deque<data_type> storageDeque;
-        std::string file_path = "data_file.txt";
+        std::string data_file_path = "data_file.txt";
+
+        const std::string FIELD_DELIMITER = ";";
 };
 
 
