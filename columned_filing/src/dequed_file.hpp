@@ -1,16 +1,27 @@
-#ifndef __COLUMNED_QUEUE_FILE_HPP
-#define __COLUMNED_QUEUE_FILE_HPP
+#ifndef __DEQUED_FILE
+#define __DEQUED_FILE
 
+#include <bits/stdc++.h> // Required for std::sort
 #include <iostream>
+
+#include <deque>
+#include <string>
 #include <vector>
 
-template<class data_type> class columned_queue_file
+template<class data_type> class dequed_file
 {
     public:
-        columned_queue_file(const int _max_items)
+        dequed_file(const int _max_items, std::vector<std::string> _data_columns)
         {
             max_items = _max_items;
-            std::cout << __LINE__ << " - Default constructor called, max size [ " << max_items << " ]" << std::endl;
+            data_columns = _data_columns;
+
+            std::cout << "dequed_file constructor called" << std::endl;
+        }
+
+        ~dequed_file()
+        {
+            std::cout << "dequed_file deconstructor called" << std::endl;
         }
 
         void add_item(data_type _new_item)
@@ -26,6 +37,7 @@ template<class data_type> class columned_queue_file
             std::sort(storageDeque.begin(), storageDeque.end());
         }
 
+        // Test function for checking struct comparisons
         void check_equality()
         {
             for (data_type left_item : storageDeque)
@@ -48,6 +60,11 @@ template<class data_type> class columned_queue_file
             }
         }
 
+        int length(void)
+        {
+            return storageDeque.size();
+        }
+
         void print_forward()
         {
             std::cout << '\n';
@@ -66,11 +83,12 @@ template<class data_type> class columned_queue_file
             if (data_file.is_open())
             {
                 // Get file headers before loading data
-                getline(data_file, data_line);
+                std::string header_line;
+                getline(data_file, header_line);
 
                 size_t pos = 0;
                 std::vector<std::string> data_header_tokens;
-                // Parse each line based on delimiter and load it into the token array
+                // Parse header line into tokens based on delimiter
                 while ((pos = data_line.find(FIELD_DELIMITER)) != std::string::npos)
                 {
                     data_header_tokens.push_back(data_line.substr(0, pos));
@@ -106,33 +124,31 @@ template<class data_type> class columned_queue_file
         {
             if (storageDeque.size() < 0)
             {
-                std::cout << "columned_queue_file::write: no items to write" << std::endl;
+                std::cout << "dequed_file::write: no items to write" << std::endl;
                 return;
             }
 
             std::ofstream data_file;
             data_file.open(data_file_path);
 
-            // Write data file headers first
-            if (storageDeque.size() > 0)
-            {
-                data_file << storageDeque.front().file_header_line << std::endl;
-            }
+            // TODO: Write data file headers
 
             for (data_type item : storageDeque)
             {
-                data_file << item.file_data_line << std::endl;
+                //data_file << item.file_data_line << std::endl;
             }
             data_file.close();
         }
 
+    protected:
+        std::deque<data_type> storageDeque;
+
     private:
         int max_items = 0;
-        std::deque<data_type> storageDeque;
+        std::vector<std::string> data_columns;
         std::string data_file_path = "data_file.txt";
-
         const std::string FIELD_DELIMITER = ";";
 };
 
 
-#endif // __COLUMNED_QUEUE_FILE_HPP
+#endif // __DEQUED_FILE

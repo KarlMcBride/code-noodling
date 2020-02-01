@@ -1,31 +1,30 @@
 #include <iostream>
-#include <bits/stdc++.h>
 
-#include <columned_queue_file.hpp>
-#include <struct_car.hpp>
+#include <car_deque.hpp>
+#include <struct_car_t.hpp>
 
 
-void add_cars(columned_queue_file<struct_car_t> &_car_queue)
+void add_car_list(car_deque& _car_deque)
 {
-    _car_queue.add_item(struct_car_t("Audi", "A3", 200, 4));
-    _car_queue.add_item(struct_car_t("Audi", "A4", 300, 4));
-    _car_queue.add_item(struct_car_t("Ferrari", "Enzo", 700, 2));
-    _car_queue.add_item(struct_car_t("Audi", "A4", 500, 4));
-    _car_queue.add_item(struct_car_t("Ferrari", "F40", 650, 2));
-    _car_queue.add_item(struct_car_t("Audi", "A5", 350, 4));
-    _car_queue.add_item(struct_car_t("Aston Martin", "DB9", 550, 2));
+    _car_deque.add_car(struct_car_t("Audi", "A3", 200, 4));
+    _car_deque.add_car(struct_car_t("Audi", "A4", 300, 4));
+    _car_deque.add_car(struct_car_t("Ferrari", "Enzo", 700, 2));
+    _car_deque.add_car(struct_car_t("Audi", "A4", 500, 4));
+    _car_deque.add_car(struct_car_t("Ferrari", "F40", 650, 2));
+    _car_deque.add_car(struct_car_t("Audi", "A5", 350, 4));
+    _car_deque.add_car(struct_car_t("Aston Martin", "DB9", 550, 2));
 }
 
 
 int main()
 {
-    columned_queue_file<struct_car_t> car_queue(6);
+    car_deque car_list = car_deque(6);
 
-    add_cars(car_queue);
-    car_queue.print_forward();
+    add_car_list(car_list);
+    car_list.print_forward();
     //car_queue.check_equality();
-    car_queue.write();
-    car_queue.read();
+    car_list.write();
+    car_list.read();
 
     return 0;
 }

@@ -7,7 +7,7 @@ class fault_queue
 {
     public:
         fault_queue();
-        ~fault_queue();
+        //~fault_queue();
 
         void add_event(int _time_stamp, std::string _fault_message);
         void add_event(std::string _time_stamp, std::string _fault_message);
