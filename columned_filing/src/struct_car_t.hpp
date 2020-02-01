@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <constants.hpp>
+
 
 struct struct_car_t
 {
@@ -36,8 +38,10 @@ struct struct_car_t
 
     std::string as_string(void) const
     {
-        std::string struct_as_string = manufacturer + ":" + model + ":"
-                                        + std::to_string(horsepower) + ":" + std::to_string(door_count);
+        std::string struct_as_string = manufacturer + constants::DELIMITER
+                                                    + model + constants::DELIMITER
+                                                    + std::to_string(horsepower) + constants::DELIMITER
+                                                    + std::to_string(door_count);
         return struct_as_string;
     }
 

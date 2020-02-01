@@ -131,20 +131,36 @@ template<class data_type> class dequed_file
             std::ofstream data_file;
             data_file.open(data_file_path);
 
-            // TODO: Write data file headers
+            // Write data file headers
+            std::string header = "";
+            for (int column_index = 0; column_index < data_columns.size(); column_index++)
+            {
+                // For all columns except last, append the column and delimiter.
+                if (column_index < data_columns.size() - 1)
+                {
+                    header += data_columns[column_index] + FIELD_DELIMITER;
+                }
+                // For last column, don't append anything else
+                else
+                {
+                    header += data_columns[column_index];
+                }
+            }
+            std::cout << "header: [ " << header << " ]" << std::endl;
+            data_file << header << std::endl;
 
             for (data_type item : storageDeque)
             {
-                //data_file << item.file_data_line << std::endl;
+                data_file << item.as_string() << std::endl;
             }
             data_file.close();
         }
 
     protected:
-        std::deque<data_type> storageDeque;
 
     private:
         int max_items = 0;
+        std::deque<data_type> storageDeque;
         std::vector<std::string> data_columns;
         std::string data_file_path = "data_file.txt";
         const std::string FIELD_DELIMITER = ";";

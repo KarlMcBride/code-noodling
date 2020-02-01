@@ -20,23 +20,3 @@ car_deque::~car_deque()
 {
     std::cout << "car_deque deconstructor called" << std::endl;
 }
-
-void car_deque::add_car(struct_car_t _new_car)
-{
-    storageDeque.push_back(_new_car);
-}
-
-void car_deque::print_forward(void)
-{
-
-}
-
-void car_deque::read(void)
-{
-
-}
-
-void car_deque::write(void)
-{
-
-}

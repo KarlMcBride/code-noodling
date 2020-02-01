@@ -6,16 +6,11 @@
 #include <struct_car_t.hpp>
 
 
-class car_deque : dequed_file<struct_car_t>
+class car_deque : public dequed_file<struct_car_t>
 {
     public:
         car_deque(const int _max_size);
         ~car_deque();
-
-        void add_car(struct_car_t);
-        void print_forward(void);
-        void read(void);
-        void write(void);
 
     private:
         // bool new_events_to_save;
