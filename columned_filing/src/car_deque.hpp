@@ -10,7 +10,9 @@ class car_deque : public dequed_file<struct_car_t>
 {
     public:
         car_deque(const int _max_size);
-        ~car_deque();
+        ~car_deque(void);
+
+        void file_parse(void);
 
     private:
         // bool new_events_to_save;

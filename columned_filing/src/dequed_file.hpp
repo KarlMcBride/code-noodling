@@ -8,13 +8,16 @@
 #include <string>
 #include <vector>
 
+#include <constants.hpp>
+
 template<class data_type> class dequed_file
 {
     public:
-        dequed_file(const int _max_items, std::vector<std::string> _data_columns)
+        dequed_file(const int _max_items, std::vector<std::string> _data_columns, std::string _data_file)
         {
             max_items = _max_items;
             data_columns = _data_columns;
+            data_file_path = _data_file;
 
             std::cout << "dequed_file constructor called" << std::endl;
         }
@@ -89,13 +92,18 @@ template<class data_type> class dequed_file
                 size_t pos = 0;
                 std::vector<std::string> data_header_tokens;
                 // Parse header line into tokens based on delimiter
-                while ((pos = data_line.find(FIELD_DELIMITER)) != std::string::npos)
+                while ((pos = header_line.find(constants::FIELD_DELIMITER)) != std::string::npos)
                 {
-                    data_header_tokens.push_back(data_line.substr(0, pos));
-                    data_line.erase(0, pos + FIELD_DELIMITER.length());
+                    data_header_tokens.push_back(header_line.substr(0, pos));
+                    header_line.erase(0, pos + constants::FIELD_DELIMITER.length());
                 }
                 // Final token will be by itself, capture it independently
-                data_header_tokens.push_back(data_line);
+                data_header_tokens.push_back(header_line);
+
+                for (std::string line : data_header_tokens)
+                {
+                    std::cout << "read: " << line << std::endl;
+                }
 
                 // Cycle through all lines in file
                 while ( getline(data_file, data_line) )
@@ -105,10 +113,10 @@ template<class data_type> class dequed_file
                     size_t pos = 0;
                     std::vector<std::string> data_tokens;
                     // Parse each line based on delimiter and load it into the token array
-                    while ((pos = data_line.find(FIELD_DELIMITER)) != std::string::npos)
+                    while ((pos = data_line.find(constants::FIELD_DELIMITER)) != std::string::npos)
                     {
                         data_tokens.push_back(data_line.substr(0, pos));
-                        data_line.erase(0, pos + FIELD_DELIMITER.length());
+                        data_line.erase(0, pos + constants::FIELD_DELIMITER.length());
                     }
                     // Final token will be by itself, capture it independently
                     data_tokens.push_back(data_line);
@@ -138,7 +146,7 @@ template<class data_type> class dequed_file
                 // For all columns except last, append the column and delimiter.
                 if (column_index < data_columns.size() - 1)
                 {
-                    header += data_columns[column_index] + FIELD_DELIMITER;
+                    header += data_columns[column_index] + constants::FIELD_DELIMITER;
                 }
                 // For last column, don't append anything else
                 else
@@ -162,8 +170,7 @@ template<class data_type> class dequed_file
         int max_items = 0;
         std::deque<data_type> storageDeque;
         std::vector<std::string> data_columns;
-        std::string data_file_path = "data_file.txt";
-        const std::string FIELD_DELIMITER = ";";
+        std::string data_file_path;
 };
 
 

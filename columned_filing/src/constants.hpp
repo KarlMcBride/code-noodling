@@ -5,7 +5,7 @@
 
 namespace constants
 {
-    const std::string DELIMITER = ";";
+    const std::string FIELD_DELIMITER = ";";
 }
 
 
