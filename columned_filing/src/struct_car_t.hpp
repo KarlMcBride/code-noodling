@@ -36,6 +36,56 @@ struct struct_car_t
         door_count = _door_count;
     }
 
+    struct_car_t(std::deque<std::string>& _car_data_deque, std::deque<int>& _data_column_order)
+    {
+        manufacturer = get_string_data_field(_car_data_deque, _data_column_order);
+        model        = get_string_data_field(_car_data_deque, _data_column_order);
+        horsepower   = get_int_data_field(_car_data_deque, _data_column_order);
+        door_count   = get_int_data_field(_car_data_deque, _data_column_order);
+    }
+
+    std::string get_string_data_field(std::deque<std::string>& _car_data_deque, std::deque<int>& _data_column_order)
+    {
+        std::string return_value = "NO_DATA";
+
+        if (_data_column_order.front() > -1)
+        {
+            std::cout << __FUNCTION__ << ":" << __LINE__ << _data_column_order.front() << std::endl;
+            return_value = _car_data_deque[_data_column_order.front()];
+        }
+        _data_column_order.pop_front();
+        std::cout << "string return_value: [ " << return_value << " ]" << std::endl;
+        return return_value;
+    }
+
+    int get_int_data_field(std::deque<std::string>& _car_data_deque, std::deque<int>& _data_column_order)
+    {
+        int return_value = -1;
+        std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+        if (_data_column_order.front() > -1)
+        {
+            try
+            {
+                std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+                std::cout << __FUNCTION__ << ":" << __LINE__ << _data_column_order.front() << std::endl;
+                return_value = std::stoi(_car_data_deque[_data_column_order.front()]);
+                std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+                std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+                return_value = -2;
+                std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+            }
+
+        }
+        _data_column_order.pop_front();
+        std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+        std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
+        return return_value;
+    }
+
     std::string as_string(void) const
     {
         std::string struct_as_string = manufacturer + constants::FIELD_DELIMITER
