@@ -16,7 +16,7 @@ class car_deque : public dequed_file<struct_car_t>
         // No items
 
     private:
-        void parse_file_deques(void);
+        // No items
 };
 
 

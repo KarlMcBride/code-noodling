@@ -18,6 +18,8 @@ template<class data_type> class dequed_file
             defined_data_columns = _defined_data_columns;
             data_file_path = _data_file;
 
+            parse_file_deques();
+
             std::cout << "dequed_file constructor called" << std::endl;
         }
 
@@ -157,6 +159,23 @@ template<class data_type> class dequed_file
             }
 
             return data_indices;
+        }
+
+        void parse_file_deques(void)
+        {
+            std::cout << "dequed_file parse_file_deques called" << std::endl;
+
+            std::deque<std::string> file_column_headers;
+            std::deque<std::deque<std::string>> file_data;
+            read_file(file_column_headers, file_data);
+            std::deque<int> header_indices = get_header_indices(file_column_headers);
+
+            // Loop through file deques and create deque of structs
+            for (auto item_data : file_data)
+            {
+                data_type new_data = data_type(item_data, header_indices);
+                add_item(new_data);
+            }
         }
 
     private:
