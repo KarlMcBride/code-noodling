@@ -12,10 +12,11 @@ class car_deque : public dequed_file<struct_car_t>
         car_deque(const int _max_size);
         ~car_deque(void);
 
-        void file_parse(void);
+    protected:
+        // No items
 
     private:
-        // bool new_events_to_save;
+        void parse_file_vectors(void);
 };
 
 

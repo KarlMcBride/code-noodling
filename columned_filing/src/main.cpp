@@ -20,11 +20,10 @@ int main()
 {
     car_deque car_list = car_deque(6);
 
-    add_car_list(car_list);
+    //add_car_list(car_list);
     car_list.print_forward();
     //car_queue.check_equality();
-    car_list.write();
-    //car_list.read();
+    //car_list.write_file();
 
     return 0;
 }
