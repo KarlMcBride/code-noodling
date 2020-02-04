@@ -36,7 +36,7 @@ struct struct_car_t
         door_count = _door_count;
     }
 
-    struct_car_t(std::deque<std::string>& _car_data_deque, std::deque<int>& _data_column_order)
+    struct_car_t(std::deque<std::string>& _car_data_deque, std::deque<int> _data_column_order)
     {
         manufacturer = get_string_data_field(_car_data_deque, _data_column_order);
         model        = get_string_data_field(_car_data_deque, _data_column_order);

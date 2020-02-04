@@ -23,7 +23,7 @@ int main()
     //add_car_list(car_list);
     car_list.print_forward();
     //car_queue.check_equality();
-    //car_list.write_file();
+    car_list.write_file();
 
     return 0;
 }

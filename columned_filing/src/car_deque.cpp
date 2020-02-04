@@ -20,7 +20,7 @@ car_deque::car_deque(const int _max_size) : dequed_file(_max_size, car_columns, 
 {
     std::cout << "car_deque constructor called" << std::endl;
 
-    parse_file_vectors();
+    parse_file_deques();
 }
 
 car_deque::~car_deque(void)
@@ -28,14 +28,19 @@ car_deque::~car_deque(void)
     std::cout << "car_deque deconstructor called" << std::endl;
 }
 
-void car_deque::parse_file_vectors(void)
+void car_deque::parse_file_deques(void)
 {
-    std::cout << "car_deque parse_file_vectors called" << std::endl;
+    std::cout << "car_deque parse_file_deques called" << std::endl;
 
     std::deque<std::string> file_column_headers;
     std::deque<std::deque<std::string>> file_data;
     read_file(file_column_headers, file_data);
     std::deque<int> header_indices = get_header_indices(file_column_headers);
-    struct_car_t new_car = struct_car_t(file_data.front(), header_indices);
-    std::cout << "new_car: [ " << new_car.as_string() << " ]" << std::endl;
+
+    // Loop through file deques and create deque of structs
+    for (auto car_data : file_data)
+    {
+        struct_car_t new_car = struct_car_t(car_data, header_indices);
+        add_item(new_car);
+    }
 }
