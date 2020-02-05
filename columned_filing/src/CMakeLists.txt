@@ -10,7 +10,8 @@ project(ColumnedFiling)
 include_directories(.)
 
 add_library(CarFile car_deque.cpp)
+add_library(FaultFile fault_deque.cpp)
 
 add_executable(columned_filing.ex main.cpp)
 
-target_link_libraries(columned_filing.ex CarFile)
+target_link_libraries(columned_filing.ex CarFile FaultFile)
