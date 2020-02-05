@@ -31,13 +31,12 @@ int main()
 {
     car_deque car_list = car_deque(6);
 
-    //add_car_list(car_list);
+    add_car_list(car_list);
     car_list.print_forward();
-    //car_queue.check_equality();
     car_list.write_file();
 
     fault_deque fault_list = fault_deque(3);
-    add_fault_list(fault_list);
+    //add_fault_list(fault_list);
     fault_list.print_forward();
     fault_list.write_file();
 
