@@ -19,13 +19,11 @@ template<class data_type> class dequed_file
             data_file_path = _data_file;
 
             parse_file_deques();
-
-            std::cout << "dequed_file constructor called" << std::endl;
         }
 
         ~dequed_file()
         {
-            std::cout << "dequed_file deconstructor called" << std::endl;
+
         }
 
         void add_item(data_type _new_item)
@@ -36,7 +34,6 @@ template<class data_type> class dequed_file
                 storage_deque.pop_front();
             }
 
-            std::cout << "add_item: [ " << _new_item.as_string() << " ]" << std::endl;
             storage_deque.push_back(_new_item);
             std::sort(storage_deque.begin(), storage_deque.end());
         }
@@ -105,7 +102,7 @@ template<class data_type> class dequed_file
                     header += defined_data_columns[column_index];
                 }
             }
-            std::cout << "header: [ " << header << " ]" << std::endl;
+
             data_file << header << std::endl;
 
             for (data_type item : storage_deque)
@@ -151,7 +148,6 @@ template<class data_type> class dequed_file
                     if (defined_data_column.compare(file_column_header) == 0)
                     {
                         matched_index = defined_column_index;
-                        std::cout << "match: " << defined_data_column << " : " << std::to_string(matched_index) << std::endl;
                     }
                     defined_column_index++;
                 }
@@ -163,8 +159,6 @@ template<class data_type> class dequed_file
 
         void parse_file_deques(void)
         {
-            std::cout << "dequed_file parse_file_deques called" << std::endl;
-
             std::deque<std::string> file_column_headers;
             std::deque<std::deque<std::string>> file_data;
             read_file(file_column_headers, file_data);
