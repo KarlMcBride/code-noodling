@@ -31,7 +31,7 @@ template<class data_type> class dequed_file
             storage_deque.push_back(_new_item);
             std::sort(storage_deque.begin(), storage_deque.end());
 
-            while(storage_deque.size() >= max_items)
+            while(storage_deque.size() > max_items)
             {
                 std::cout << "add_item: dropping [ " << storage_deque.front().as_string() << " ]" << std::endl;
                 storage_deque.pop_front();
