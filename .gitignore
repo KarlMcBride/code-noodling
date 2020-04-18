@@ -1,7 +1,7 @@
 # Directories to be ignored
-.vscode
-build
-output
+**/.vscode
+**/build/
+**/output/
 
 # Files to be ignored
 data_store.txt
