@@ -25,7 +25,7 @@ void writer::write_loop()
     {
         // Core components.
         0x53,   // Start of message (SoM).
-        0x08,   // LSB byte of complete package length.
+        0x09,   // LSB byte of complete package length.
         0x00,   // MSB byte of complete package length.
         0x00,   // Device address, 0x00-0xfe, 0xff = configuration mode that all devices should act upon.
 
@@ -45,17 +45,18 @@ void writer::write_loop()
         m_sim_port->write_data(0xFE);
         m_sim_port->write_data(0xFE);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
         for (auto data : sample_data)
         {
             m_sim_port->write_data(data);
+            //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         // Inject trash data after our wanted packet.
         m_sim_port->write_data(0xFF);
         m_sim_port->write_data(0xFF);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(750));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
