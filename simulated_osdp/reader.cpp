@@ -40,9 +40,12 @@ void reader::read_loop()
             m_input_deque.push_back(new_data);
         }
 
-        for (std::deque<int>::iterator data_iterator = m_input_deque.begin(); data_iterator != m_input_deque.end(); ++data_iterator)
+        for (int data_index = 0; data_index < m_input_deque.size(); data_index++)
         {
-            int current_data = *data_iterator;
+            int current_data = m_input_deque[data_index];
+        //for (std::deque<int>::iterator data_iterator = m_input_deque.begin(); data_iterator != m_input_deque.end(); ++data_iterator)
+        //{
+            //int current_data = *data_iterator;
             std::cout << "    " << current_data << std::endl;
 
             //std::cout << "|" << current_data;
