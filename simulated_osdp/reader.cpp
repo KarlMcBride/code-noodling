@@ -171,8 +171,10 @@ void reader::read_loop()
                             m_input_deque.pop_front();
                         }
 
-                        std::this_thread::sleep_for( std::chrono::milliseconds(5000));
+                        std::this_thread::sleep_for( std::chrono::milliseconds(2000));
                     }
+
+                    std::cout << "  resetting" << std::endl;
 
                     sequence_start_found = false;
                     address_found = false;
@@ -184,11 +186,11 @@ void reader::read_loop()
 
                     // Since we've added the new complete inflight data packet to the command list,
                     // clear it down.
-                    //while(!inflight_data.empty())
-                    //{
-                    //    inflight_data.pop();
-                    //}
-                    //std::cout << "Cleared inflight data";
+                    while(!inflight_data.empty())
+                    {
+                        inflight_data.pop_front();
+                    }
+                    std::cout << "Cleared inflight data";
 
                     break;
                 }
