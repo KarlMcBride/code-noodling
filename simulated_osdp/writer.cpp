@@ -99,13 +99,23 @@ void writer::write_loop()
         0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB
     };
 
-    int actual_osdp_poll_data_with_erroneous_data[]
+    int actual_osdp_poll_data_with_almost_acceptable_erroneous_data[]
     {
         // Starting "0x53, 0x00, 0x0B, 0x00" is 'erroneous', as to make naive reader implementations
         // think that a start of packet message with address zero and length 11.
+        // Trailing "0xDF, 0xEF" is also 'erroneous', but is inline with the LSB+MSB length.
+        // Packet length values coincide with actual packet length, but final two bytes for CRC are incorrect.
+        // The correct data that should be found is "0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB".
+        0x53, 0x00, 0x0E, 0x00, 0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB, 0xDF, 0xFF
+    };
+
+    int actual_osdp_poll_data_with_erroneous_data[]
+    {
+        // Starting "0x53, 0x00, 0xFF, 0x00" is 'erroneous', as to make naive reader implementations
+        // think that a start of packet message with address zero and length 255.
         // Trailing "0xDF, 0xEF" is also 'erroneous'.
-        // Correct data is "0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB".
-        0x53, 0x00, 0x0B, 0x00, 0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB, 0xDF, 0xEF
+        // The correct data that should be found is "0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB".
+        0x53, 0x00, 0xFF, 0x00, 0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB, 0xDF, 0xFF
     };
 
     while (true)
@@ -137,9 +147,18 @@ void writer::write_loop()
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
 
-        if (true)
+        if (!true)
         {
             for (auto data : actual_osdp_poll_data)
+            {
+                m_sim_port->write_data(data);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+
+        if (true)
+        {
+            for (auto data : actual_osdp_poll_data_with_almost_acceptable_erroneous_data)
             {
                 m_sim_port->write_data(data);
             }
