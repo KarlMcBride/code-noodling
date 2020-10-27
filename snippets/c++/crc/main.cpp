@@ -113,7 +113,9 @@ uint16_t calculate_crc(uint8_t data[], uint16_t data_length)
 
 // Polling data based on SIA_OSDP2 1.7 - includes CRC bytes of 0xAA (170) and 0xEB (235).
 // Exclude these when calculating the CRC by subtracting 2 from the length when passing in.
-uint8_t osdp_poll_data[] { 0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB };
+uint8_t osdp_poll_data[] { 0x53, 0x00, 0x08, 0x00, 0x05, 0x60, 0xDA, 0x99 };
+
+uint8_t osdp_poll_ack_data[] { 0x53, 0x80, 0x08, 0x00, 0x05, 0x40, 0x68, 0x9f };
 
 int main()
 {
@@ -121,13 +123,13 @@ int main()
 
     populate_crc_table();
 
-    uint16_t osdp_poll_data_checksum = calculate_crc(osdp_poll_data, sizeof(osdp_poll_data) - 2);
-    uint16_t checksum_most_significant_byte = osdp_poll_data_checksum >> 8;
-    uint16_t checksum_least_significant_byte = osdp_poll_data_checksum & 0xFF;
+    uint16_t checksum = calculate_crc(osdp_poll_ack_data, sizeof(osdp_poll_ack_data) - 2);
+    uint16_t checksum_most_significant_byte = checksum >> 8;
+    uint16_t checksum_least_significant_byte = checksum & 0xFF;
 
-    std::cout << "osdp_poll_data_checksum : "; print_number_as_hex_and_int(osdp_poll_data_checksum);
-    std::cout << "                    LSB : "; print_number_as_hex_and_int(checksum_most_significant_byte);
-    std::cout << "                    MSB : "; print_number_as_hex_and_int(checksum_least_significant_byte);
+    std::cout << "osdp_poll_ack_data : "; print_number_as_hex_and_int(checksum);
+    std::cout << "               LSB : "; print_number_as_hex_and_int(checksum_least_significant_byte);
+    std::cout << "               MSB : "; print_number_as_hex_and_int(checksum_most_significant_byte);
 
     return 0;
 }
