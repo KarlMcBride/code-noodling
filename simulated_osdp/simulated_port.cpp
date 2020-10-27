@@ -16,7 +16,7 @@ simulated_port::~simulated_port()
 // Returns true if enough data is available, otherwise false.
 bool simulated_port::read_data(int* _new_data)
 {
-    if (m_read_write_queue.size() <= 1)
+    if (m_read_write_queue.size() < 1)
     {
         return false;
     }
