@@ -25,9 +25,9 @@ void writer::write_loop()
     {
         // Core components.
         0x53,   // Start of message (SoM).
+        0x00,   // Device address, 0x00-0xfe, 0xff = configuration mode that all devices should act upon.
         0x09,   // LSB byte of complete package length.
         0x00,   // MSB byte of complete package length.
-        0x00,   // Device address, 0x00-0xfe, 0xff = configuration mode that all devices should act upon.
 
         // Optional encryption and commands go below.
         0x01,
@@ -48,9 +48,9 @@ void writer::write_loop()
 
         // Core components.
         0x53,   // Start of message (SoM).
+        0x00,   // Device address, 0x00-0xfe, 0xff = configuration mode that all devices should act upon.
         0x10,   // LSB byte of complete package length.
         0x00,   // MSB byte of complete package length.
-        0x00,   // Device address, 0x00-0xfe, 0xff = configuration mode that all devices should act upon.
 
         // Optional encryption and commands go below.
         0x01,
@@ -74,18 +74,85 @@ void writer::write_loop()
         0xFD
     };
 
+    int sample_data_invalid_starting[]
+    {
+        0x50,
+
+        // Core components.
+        0x53,   // Start of message (SoM).
+        0x00,   // Device address, 0x00-0xfe, 0xff = configuration mode that all devices should act upon.
+        0x09,   // LSB byte of complete package length.
+        0x00,   // MSB byte of complete package length.
+
+        // Optional encryption and commands go below.
+        0x01,
+        0x02,
+        0x03,
+        0x04,
+
+        // CRC/checksum below - currently a sum of the previous data.
+        0x65
+    };
+
+    int actual_osdp_poll_data[]
+    {
+        0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB
+    };
+
+    int actual_osdp_poll_data_with_erroneous_data[]
+    {
+        // Starting "0x53, 0x00, 0x0B, 0x00" is 'erroneous', as to make naive reader implementations
+        // think that a start of packet message with address zero and length 11.
+        // Trailing "0xDF, 0xEF" is also 'erroneous'.
+        // Correct data is "0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB".
+        0x53, 0x00, 0x0B, 0x00, 0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB, 0xDF, 0xEF
+    };
+
     while (true)
     {
-        for (auto data : sample_data)
+        if (!true)
         {
-            m_sim_port->write_data(data);
+            for (auto data : sample_data)
+            {
+                m_sim_port->write_data(data);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
 
-        for (auto data : sample_data_longer)
+        if (!true)
         {
-            m_sim_port->write_data(data);
+            for (auto data : sample_data_longer)
+            {
+                m_sim_port->write_data(data);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        if (!true)
+        {
+            for (auto data : sample_data_invalid_starting)
+            {
+                m_sim_port->write_data(data);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+
+        if (true)
+        {
+            for (auto data : actual_osdp_poll_data)
+            {
+                m_sim_port->write_data(data);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+
+        if (!true)
+        {
+            for (auto data : actual_osdp_poll_data_with_erroneous_data)
+            {
+                m_sim_port->write_data(data);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
     }
 }

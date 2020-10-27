@@ -24,6 +24,7 @@ void reader::read_loop()
     std::queue<int> inflight_data;
 
     bool sequence_start_found = false;
+    bool address_found = false;
     bool lsb_packet_length_found = false;
     bool msb_packet_length_found = false;
 
@@ -42,6 +43,8 @@ void reader::read_loop()
         for (std::deque<int>::iterator data_iterator = m_input_deque.begin(); data_iterator != m_input_deque.end(); ++data_iterator)
         {
             int current_data = *data_iterator;
+            //std::cout << "    " << current_data << std::endl;
+            m_input_deque.pop_front();
 
             //std::cout << "|" << current_data;
 
@@ -59,33 +62,38 @@ void reader::read_loop()
             if (current_data != 0x53 && !sequence_start_found)
             {
                 //std::cout << "Discarding " << current_data << std::endl;
-                m_input_deque.pop_front();
             }
             // Check for start of message, and if we haven't already found one, begin processing.
             else if (current_data == 0x53 && !sequence_start_found)
             {
-                //std::cout << "Sequence started " << current_data << std::endl;
+                // std::cout << "Got sequence start: " << current_data << std::endl;
                 sequence_start_found = true;
                 inflight_data.emplace(current_data);
-                m_input_deque.pop_front();
                 ++inflight_packet_length;
             }
             // Handle new data if a sequence is underway.
             else if (sequence_start_found)
             {
-                // First byte after start of message is LSB byte of packet length.
+                // First byte after start of message is address.
+                if (!address_found)
+                {
+                    address_found = true;
+                    inflight_data.emplace(current_data);
+                    ++inflight_packet_length;
+                     std::cout << "  Got Add: " << current_data << std::endl;
+                }
+                // Second byte after start of message is LSB byte of packet length.
                 // Add its value to the calculated data length, and set the lsb flag to true so
                 // we don't iterpret another byte as an LSB length value.
-                if (!lsb_packet_length_found)
+                else if (!lsb_packet_length_found)
                 {
                     lsb_packet_length_found = true;
                     calculated_packet_length = current_data;
                     inflight_data.emplace(current_data);
-                    m_input_deque.pop_front();
                     ++inflight_packet_length;
-                    //std::cout << "Got LSB: " << calculated_packet_length << std::endl;
+                    std::cout << "  Got LSB: " << calculated_packet_length << std::endl;
                 }
-                // Second byte after start of message is MSB byte of packet length.
+                // Third byte after start of message is MSB byte of packet length.
                 // Handle in the same way as with LSB, except multiply its value by 16,
                 // as its the most significant byte.
                 else if (!msb_packet_length_found)
@@ -93,22 +101,21 @@ void reader::read_loop()
                     msb_packet_length_found = true;
                     calculated_packet_length += current_data * 16;
                     inflight_data.emplace(current_data);
-                    m_input_deque.pop_front();
                     ++inflight_packet_length;
-                   // std::cout << "Got MSB (" << current_data << "): " << calculated_packet_length << std::endl;
+                    std::cout << "  Got MSB: " << current_data << " updated to: " << calculated_packet_length << std::endl;
                 }
                 else if (inflight_packet_length < calculated_packet_length)
                 {
                     inflight_data.emplace(current_data);
-                    m_input_deque.pop_front();
                     ++inflight_packet_length;
-                    //std::cout << "Got data: " << current_data << std::endl;
+                    std::cout << "  Got data: " << current_data << std::endl;
                 }
                 else
                 {
-                    //std::cout << "read full packet" << std::endl;
+                    std::cout << "read full packet" << std::endl;
 
                     sequence_start_found = false;
+                    address_found = false;
                     lsb_packet_length_found = false;
                     msb_packet_length_found = false;
 
