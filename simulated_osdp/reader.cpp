@@ -21,7 +21,7 @@ void reader::join()
 
 void reader::read_loop()
 {
-    std::queue<int> inflight_data;
+    std::deque<int> inflight_data;
 
     bool sequence_start_found = false;
     bool address_found = false;
@@ -43,8 +43,7 @@ void reader::read_loop()
         for (std::deque<int>::iterator data_iterator = m_input_deque.begin(); data_iterator != m_input_deque.end(); ++data_iterator)
         {
             int current_data = *data_iterator;
-            //std::cout << "    " << current_data << std::endl;
-            m_input_deque.pop_front();
+            std::cout << "    " << current_data << std::endl;
 
             //std::cout << "|" << current_data;
 
@@ -61,14 +60,14 @@ void reader::read_loop()
             // If we haven't found the start of message, discard anything that isn't 0x53.
             if (current_data != 0x53 && !sequence_start_found)
             {
-                //std::cout << "Discarding " << current_data << std::endl;
+                std::cout << "Discarding " << current_data << std::endl;
             }
             // Check for start of message, and if we haven't already found one, begin processing.
             else if (current_data == 0x53 && !sequence_start_found)
             {
-                // std::cout << "Got sequence start: " << current_data << std::endl;
+                std::cout << "  Got sequence start: " << current_data << std::endl;
                 sequence_start_found = true;
-                inflight_data.emplace(current_data);
+                inflight_data.push_back(current_data);
                 ++inflight_packet_length;
             }
             // Handle new data if a sequence is underway.
@@ -78,7 +77,7 @@ void reader::read_loop()
                 if (!address_found)
                 {
                     address_found = true;
-                    inflight_data.emplace(current_data);
+                    inflight_data.push_back(current_data);
                     ++inflight_packet_length;
                      std::cout << "  Got Add: " << current_data << std::endl;
                 }
@@ -89,7 +88,7 @@ void reader::read_loop()
                 {
                     lsb_packet_length_found = true;
                     calculated_packet_length = current_data;
-                    inflight_data.emplace(current_data);
+                    inflight_data.push_back(current_data);
                     ++inflight_packet_length;
                     std::cout << "  Got LSB: " << calculated_packet_length << std::endl;
                 }
@@ -100,19 +99,80 @@ void reader::read_loop()
                 {
                     msb_packet_length_found = true;
                     calculated_packet_length += current_data * 16;
-                    inflight_data.emplace(current_data);
+                    inflight_data.push_back(current_data);
                     ++inflight_packet_length;
                     std::cout << "  Got MSB: " << current_data << " updated to: " << calculated_packet_length << std::endl;
                 }
                 else if (inflight_packet_length < calculated_packet_length)
                 {
-                    inflight_data.emplace(current_data);
+                    inflight_data.push_back(current_data);
                     ++inflight_packet_length;
                     std::cout << "  Got data: " << current_data << std::endl;
                 }
                 else
                 {
-                    std::cout << "read full packet" << std::endl;
+                    std::cout << "read full packet: ";
+
+                    // Check if checksum/CRC matches. If so, process the valid message and pop those bytes off the input deque.
+                    // If not, signal to find the next 0x53 and pop off the first sequence with 0x53.
+                    // Replace hardcoded 0xAA and 0xEB with CRC generated values. These are pulled from
+                    // "actual_osdp_poll_data_with_almost_acceptable_erroneous_data".
+                    std::cout << "  data: ";
+                    for (int index = 0; index < calculated_packet_length; index++)
+                    {
+                        std::cout << "|" << inflight_data[index];
+                    }
+                    std::cout << "|" << std::endl;
+
+                    int lsb_crc = inflight_data[calculated_packet_length - 2];
+                    int msb_crc = inflight_data[calculated_packet_length - 1];
+                    int expected_lsb_crc = 0xAA;
+                    int expected_msb_crc = 0xEB;
+                    std::cout << "calculated_packet_length: " << calculated_packet_length << std::endl;
+                    std::cout << "crcs: " << lsb_crc << "/" << expected_lsb_crc << " : " << msb_crc << "/" << expected_msb_crc << std::endl;
+
+                    // TODO: replace with actual calculated CRC values
+                    //if (lsb_crc == 170 && msb_crc == 235)
+                    if (lsb_crc == 0xAA && msb_crc == 0xEB)
+                    {
+                        // Inflight data CRC matches that of the calculated checksum, so process it and take action.
+                        // Discard retrieved packet data from deque.
+                        for (int index = 0; index < inflight_packet_length; index++)
+                        {
+                            m_input_deque.pop_front();
+                        }
+
+                        m_command_list.emplace(inflight_data);
+                    }
+                    else
+                    {
+                        std::cout << "  CRC mismatch data: ";
+                        for (int index = 0; index < calculated_packet_length; index++)
+                        {
+                            std::cout << "|" << inflight_data[index];
+                        }
+                        std::cout << "|" << std::endl;
+
+                        // Inflight data CRC doesn't match that of the calculated checksum, so find the next 0x53 and
+                        // discard data up to that point. Start at index 1 since 0 will contain 0x53 at this point.
+                        int next_sequence_start = 0;
+                        for (int index = 1; index < inflight_packet_length; index++)
+                        {
+                            if (inflight_data[index] == 0x53)
+                            {
+                                std::cout << "  next sequence start found @ index " << index << std::endl;
+                                next_sequence_start = index;
+                                break;
+                            }
+                        }
+
+                        for (int index = 0; index < next_sequence_start; index++)
+                        {
+                            m_input_deque.pop_front();
+                        }
+
+                        std::this_thread::sleep_for( std::chrono::milliseconds(5000));
+                    }
 
                     sequence_start_found = false;
                     address_found = false;
@@ -122,22 +182,28 @@ void reader::read_loop()
                     calculated_packet_length = 0;
                     inflight_packet_length = 0;
 
-                    m_command_list.emplace(inflight_data);
-
                     // Since we've added the new complete inflight data packet to the command list,
                     // clear it down.
-                    while(!inflight_data.empty())
-                    {
-                        inflight_data.pop();
-                    }
+                    //while(!inflight_data.empty())
+                    //{
+                    //    inflight_data.pop();
+                    //}
                     //std::cout << "Cleared inflight data";
 
                     break;
                 }
             }
-        }
 
-        std::this_thread::sleep_for( std::chrono::milliseconds(1));
+            if (!true)
+            {
+                std::cout << "  debug data EOL: ";
+                for (int index = 0; index < calculated_packet_length; index++)
+                {
+                    std::cout << "|" << inflight_data[index];
+                }
+                std::cout << "|" << std::endl;
+            }
+        }
 
         while(!m_command_list.empty())
         {
@@ -152,5 +218,7 @@ void reader::read_loop()
             }
             std::cout << "#" << std::endl;
         }
+
+        std::this_thread::sleep_for( std::chrono::milliseconds(250));
     }
 }

@@ -99,7 +99,7 @@ void writer::write_loop()
         0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB
     };
 
-    int actual_osdp_poll_data_with_almost_acceptable_erroneous_data[]
+    int osdp_poll_data_with_almost_acceptable_erroneous_data[]
     {
         // Starting "0x53, 0x00, 0x0B, 0x00" is 'erroneous', as to make naive reader implementations
         // think that a start of packet message with address zero and length 11.
@@ -109,7 +109,7 @@ void writer::write_loop()
         0x53, 0x00, 0x0E, 0x00, 0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB, 0xDF, 0xFF
     };
 
-    int actual_osdp_poll_data_with_erroneous_data[]
+    int osdp_poll_data_with_erroneous_data[]
     {
         // Starting "0x53, 0x00, 0xFF, 0x00" is 'erroneous', as to make naive reader implementations
         // think that a start of packet message with address zero and length 255.
@@ -118,7 +118,7 @@ void writer::write_loop()
         0x53, 0x00, 0xFF, 0x00, 0x53, 0x00, 0x08, 0x00, 0x04, 0x60, 0xAA, 0xEB, 0xDF, 0xFF
     };
 
-    while (true)
+    //while (true)
     {
         if (!true)
         {
@@ -158,7 +158,7 @@ void writer::write_loop()
 
         if (true)
         {
-            for (auto data : actual_osdp_poll_data_with_almost_acceptable_erroneous_data)
+            for (auto data : osdp_poll_data_with_almost_acceptable_erroneous_data)
             {
                 m_sim_port->write_data(data);
             }
@@ -167,7 +167,7 @@ void writer::write_loop()
 
         if (!true)
         {
-            for (auto data : actual_osdp_poll_data_with_erroneous_data)
+            for (auto data : osdp_poll_data_with_erroneous_data)
             {
                 m_sim_port->write_data(data);
             }
