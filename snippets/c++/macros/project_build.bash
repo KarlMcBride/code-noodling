@@ -7,3 +7,5 @@ source_build_dir=build
 cmake -H${source_dir} -B${source_build_dir}
 # Run build
 make -C ${source_build_dir}
+
+./build/macro.ex
