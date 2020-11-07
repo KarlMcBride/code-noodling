@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+
+<script>
+    function checkbox_state_changed(caller)
+    {
+        var optionalText = document.getElementById("optionalText");
+        if (caller.checked == true)
+        {
+            optionalText.style.display = "block";
+            optionalText.textContent = "Checkbox '" + caller.id + "' checked";
+        }
+        else
+        {
+            optionalText.style.display = "none";
+        }
+    }
+</script>
+
+
+<html>
+<body>
+
+<p>Checkbox example</p>
+
+<label for="checkbox1">Checkbox 1:</label>
+<input type="checkbox" id="checkbox1" onclick="checkbox_state_changed(this)">
+</br>
+<label for="checkbox2">Checkbox 2:</label>
+<input type="checkbox" id="checkbox2" onclick="checkbox_state_changed(this)">
+
+<p id="optionalText" style="display:none">Checkbox is CHECKED!</p>
+
+
+</body>
+</html>

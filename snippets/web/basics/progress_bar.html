@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+
+<script>
+    var i = 0;
+    function trigger_progress_bar()
+    {
+        if (i == 0)
+        {
+            i = 1;
+            var elem = document.getElementById("progressBar");
+            var width = 1;
+            var id = setInterval(frame, 10);
+            function frame()
+            {
+                if (width >= 100)
+                {
+                    clearInterval(id);
+                    i = 0;
+                }
+                else
+                {
+                    width++;
+                    elem.style.width = width + "%";
+                }
+            }
+        }
+    }
+</script>
+
+
+<html>
+<style>
+
+#progressBarBackground
+{
+    width: 100%;
+    background-color: #ddd;
+}
+
+#progressBar
+{
+    width: 0%;
+    height: 30px;
+    background-color: #2926c5;
+}
+</style>
+<body>
+
+<h1>JavaScript Progress Bar</h1>
+
+<div id="progressBarBackground">
+  <div id="progressBar"></div>
+</div>
+
+<br>
+<button onclick="trigger_progress_bar()">Trigger progress bar</button>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+
+<script>
+    function handle_mouse_down(event)
+    {
+        alert("You pressed button: " + event.button)
+    }
+
+    function resize_large(x)
+    {
+        x.style.height = "128px";
+        x.style.width = "128px";
+    }
+
+    function resize_small(x)
+    {
+        x.style.height = "64px";
+        x.style.width = "64px";
+    }
+</script>
+
+<html>
+    <body>
+        <div onmousedown="handle_mouse_down(event)">Click this text with one of your mouse buttons to return a number.
+        <p>
+        0 = Left mouse button<br>
+        1 = Middle mouse button<br>
+        2 = Right mouse button<br>
+        3 = Back button<br>
+        4 = Forward button
+        </p>
+
+        <p><strong>Note:</strong> Internet Explorer 8, and earlier returns different results</p>
+        <p>
+
+        <p>Mouse over image to trigger 'resize_large', and leave to trigger 'resize_small'.</p>
+        <img onmouseenter="resize_large(this)" onmouseleave="resize_small(this)" border="0" src="images/RoboHarambe128.png" alt="RoboHarambe128" width="64" height="64">
+    </body>
+</html>
