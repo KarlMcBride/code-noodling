@@ -7,16 +7,16 @@
 #include <string>
 #include <iostream>
 
-template<typename T>
+template<typename Type>
 class generic_class_sort
 {
     public:
-        void add(const T &val)
+        void add(const Type &val)
         {
             data.push_back(val);
         }
 
-        void add(const std::initializer_list<T> & values)
+        void add(const std::initializer_list<Type> & values)
         {
             data.insert(data.end(), values);
         }
@@ -27,18 +27,19 @@ class generic_class_sort
             std::sort(data.begin(), data.end());
         }
 
-        void print() {
+        void print()
+        {
             // Print all Ts
-            for (const T & t : data)
+            for (const Type & type : data)
             {
-                std::cout << t << " ";
+                std::cout << type << " ";
             }
 
-            std::cout << "\n";
+            std::cout << std::endl;
         }
 
     private:
-        std::vector<T> data;
+        std::vector<Type> data;
 };
 
 void test_class_sort()
