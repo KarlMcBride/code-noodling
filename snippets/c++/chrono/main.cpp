@@ -3,10 +3,11 @@
 //      https://cplusplus.com/reference/chrono/system_clock/
 
 
-#include <iostream>
 #include <ctime>
+#include <iostream>
 #include <ratio>
 #include <chrono>
+#include <thread>
 
 void timer()
 {
@@ -51,6 +52,11 @@ int main ()
     real_time_clock();
 
     uint64_t seconds_since_epoc = std::chrono::system_clock::now().time_since_epoch() / std::chrono::seconds(1);
+    std::cout << "seconds_since_epoc: " << seconds_since_epoc << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::seconds(4));
+
+    seconds_since_epoc = std::chrono::system_clock::now().time_since_epoch() / std::chrono::seconds(1);
     std::cout << "seconds_since_epoc: " << seconds_since_epoc << std::endl;
 
     return 0;
