@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<script>
+    function set_active(caller)
+    {
+        window.top.location.href = document.getElementById(caller.id).getAttribute("href");
+    }
+</script>
+
+
+<html>
+<head>
+    <style>
+        ul
+        {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        li
+        {
+            float: left;
+        }
+
+        li item
+        {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        li item:hover:not(.active)
+        {
+            background-color: #111;
+        }
+
+        li item:visited
+        {
+            background-color: aqua;
+        }
+
+        .active
+        {
+            background-color: #4CAF50;
+        }
+    </style>
+
+</head>
+<body>
+    <nav>
+        <ul id="nav_list">
+            <!-- Mak item as active by including class="active" -->
+            <li><item id="home"    onclick="set_active(this)" href="home.html">Home</a></li>
+            <li><item id="news"    onclick="set_active(this)" href="news.html">News</a></li>
+            <li><item id="contact" onclick="set_active(this)" href="contact.html">Contact</a></li>
+            <li><item id="about"   onclick="set_active(this)" href="about.html">About</a></li>
+        </ul>
+    </nav>
+</body>
+</html>
