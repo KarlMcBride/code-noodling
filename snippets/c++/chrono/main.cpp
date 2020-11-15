@@ -13,11 +13,8 @@ void timer()
 {
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
-    std::cout << "printing out 1000 stars...\n";
-    for (int i=0; i<1000; ++i)
-    {
-        std::cout << "*";
-    }
+    std::cout << "Sleeping for 1 second" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     std::cout << std::endl;
 
@@ -54,7 +51,8 @@ int main ()
     uint64_t seconds_since_epoc = std::chrono::system_clock::now().time_since_epoch() / std::chrono::seconds(1);
     std::cout << "seconds_since_epoc: " << seconds_since_epoc << std::endl;
 
-    std::this_thread::sleep_for(std::chrono::seconds(4));
+    std::cout << "Sleeping for 2 seconds" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     seconds_since_epoc = std::chrono::system_clock::now().time_since_epoch() / std::chrono::seconds(1);
     std::cout << "seconds_since_epoc: " << seconds_since_epoc << std::endl;
