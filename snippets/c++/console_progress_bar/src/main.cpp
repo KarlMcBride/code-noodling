@@ -9,7 +9,7 @@ void report_progress(const int _progress)
 
     if (_progress > 0)
     {
-        hash_count = ((_progress * MAX_BAR_WIDTH) / 100) ;
+        hash_count = (((double)_progress / 100) * MAX_BAR_WIDTH);
     }
 
     std::string progress_bar = "";
@@ -21,25 +21,24 @@ void report_progress(const int _progress)
         }
         else
         {
-            progress_bar += ".";
+            progress_bar += " ";
         }
     }
 
     std::string prog_message = "Progress: " + std::to_string(_progress) + "% [" + progress_bar + "]";
-    std::cout << std::string(prog_message.length(), '\b');
-
-    std::cout << progress_bar << std::endl;
+    std::cout << std::string(prog_message.length(), '\r');
+    std::cout << prog_message << std::flush;
 }
 
 int main()
 {
-    for (int index = 0; index <= 100; index+=3)
+    std::cout << "Progress bar example" << std::endl;
+
+    for (int index = 0; index <= 100; index++)
     {
         report_progress(index);
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
-    std::string str="Hello!";
-    std::cout << str;
-    std::cout << std::string(str.length(),'\b');
-    std::cout << "Hello again!";
+
     return 0;
 }
