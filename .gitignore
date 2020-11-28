@@ -1,10 +1,17 @@
-# Directories to be ignored
+# Individual files to be ignored
+data_store.txt
+
+# File extensions
+*.ex
+
+# IDE directories
+**/.vs/
 **/.vscode
+
+# Directories for C++ project outputs
 **/build/
 **/output/
 
-# Files to be ignored
-data_store.txt
-
-# File extensions to be ignored
-*.ex
+# Directories  for C#/Visual Studio project outputs
+**/bin/
+**/obj/
