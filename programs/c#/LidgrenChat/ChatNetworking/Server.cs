@@ -1,0 +1,6 @@
+﻿namespace ChatNetworking
+{
+    class Server
+    {
+    }
+}
