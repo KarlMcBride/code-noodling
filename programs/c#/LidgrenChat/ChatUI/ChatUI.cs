@@ -17,10 +17,9 @@ namespace ChatUI
             m_clientAlpha = new Client("Client Alpha");
             m_clientBravo = new Client("Client Bravo");
 
-            //System.Threading.Thread.Sleep(5000);
-
-            m_clientAlpha.SendMessage("Alpha's colour: amber");
-            m_clientBravo.SendMessage("Bravo's colour: blue");
+            m_clientAlpha.QueueMessage("Alpha's colour: amber");
+            m_clientAlpha.QueueMessage("Alpha's location: NI");
+            m_clientBravo.QueueMessage("Bravo's colour: blue");
         }
     }
 }

@@ -12,14 +12,17 @@ namespace ChatNetworking
         private Thread              m_clientThread;
         private List<Participant>   m_ParticipantList;
 
-        private bool                m_ready;
+        private bool                m_connected;
+
+        private List<string>        m_outboundMessageList;
 
         public Client(string _name)
         {
             m_name = _name;
+            m_outboundMessageList = new List<string>();
             m_clientThread = new Thread(Init);
             m_clientThread.Start();
-            m_ready = false;
+            m_connected = false;
         }
 
         public void Init()
@@ -89,7 +92,7 @@ namespace ChatNetworking
                         case NetIncomingMessageType.StatusChanged:
                         {
                             Console.WriteLine("Status changed: [" + incomingMessage.SenderConnection.Status + "]");
-                            m_ready = true;
+                            m_connected = true;
                             break;
                         }
                         default:
@@ -99,24 +102,37 @@ namespace ChatNetworking
                         }
                     }
                 }
+
+                if (m_connected)
+                {
+                    SendNewMessages();
+                }
+
                 Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
             }
         }
 
-        public void SendMessage(string _message)
+        private void SendNewMessages()
         {
-            while (!m_ready)
+            foreach (string message in m_outboundMessageList)
             {
-                Console.WriteLine("Can't send message, not yet ready");
-                Thread.Sleep(Constants.CLIENT_INIT_RETRY_MS);
+                NetOutgoingMessage outboundMessage = m_client.CreateMessage();
+                ParticipantMessage messageContents = new ParticipantMessage(m_name, message);
+
+                outboundMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
+                outboundMessage.WriteAllProperties(messageContents);
+                m_client.SendMessage(outboundMessage, NetDeliveryMethod.ReliableOrdered);
             }
+            m_outboundMessageList.Clear();
+        }
 
-            NetOutgoingMessage outboundMessage = m_client.CreateMessage();
-            ParticipantMessage messageContents = new ParticipantMessage(m_name, _message);
-
-            outboundMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
-            outboundMessage.WriteAllProperties(messageContents);
-            m_client.SendMessage(outboundMessage, NetDeliveryMethod.ReliableOrdered);
+        /// <summary>
+        /// Interface to allow UI to add a message to be sent as part of the networking thread.
+        /// </summary>
+        /// <param name="_message">New message to be sent.</param>
+        public void QueueMessage(string _message)
+        {
+            m_outboundMessageList.Add(_message);
         }
     }
 }
