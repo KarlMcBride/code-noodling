@@ -7,7 +7,7 @@ namespace ChatNetworking
 {
     public class Server
     {
-        private NetServer           m_LidgrenServer;
+        private NetServer           m_server;
         private Thread              m_serverThread;
         private List<Participant>   m_ParticipantList;
 
@@ -26,8 +26,8 @@ namespace ChatNetworking
                 MaximumConnections = 200
             };
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
-            m_LidgrenServer = new NetServer(config);
-            m_LidgrenServer.Start();
+            m_server = new NetServer(config);
+            m_server.Start();
             Console.WriteLine("Server Started");
 
             m_serverThread = new Thread(MainLoop);
@@ -39,7 +39,7 @@ namespace ChatNetworking
             NetIncomingMessage incomingMessage;
             while (true)
             {
-                incomingMessage = m_LidgrenServer.ReadMessage();
+                incomingMessage = m_server.ReadMessage();
 
                 if (incomingMessage != null && incomingMessage.LengthBytes > 0)
                 {
@@ -58,13 +58,13 @@ namespace ChatNetworking
                                 m_ParticipantList.Add(new Participant(newParticipantName, incomingMessage.SenderConnection));
 
                                 // Create message, that can be written and sent
-                                NetOutgoingMessage outmsg = m_LidgrenServer.CreateMessage();
-                                outmsg.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT);
-                                outmsg.Write(m_ParticipantList.Count);
+                                NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
+                                outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT);
+                                outgoingMessage.Write(m_ParticipantList.Count);
 
                                 foreach (Participant participant in m_ParticipantList)
                                 {
-                                    outmsg.WriteAllProperties(participant);
+                                    outgoingMessage.WriteAllProperties(participant);
                                 }
 
                                 // At this point, the packet will contain:
@@ -73,7 +73,7 @@ namespace ChatNetworking
                                 //    - participant * n : participant object containing their name and connection ID.
 
                                 // Reliable = each packet arrives in order they were sent.
-                                m_LidgrenServer.SendMessage(outmsg, incomingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                m_server.SendMessage(outgoingMessage, incomingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered, 0);
 
                                 Console.WriteLine("Approved new connection [" + newParticipantName + "] and updated participant list");
                             }
@@ -82,12 +82,31 @@ namespace ChatNetworking
                         // Data type is for messages manually sent from the client (i.e. participant's messages).
                         case NetIncomingMessageType.Data:
                         {
+                            // First byte indicates message type. Read it before logic switching as once we read it,
+                            // it's removed from the incoming packet.
+                            byte messageType = incomingMessage.ReadByte();
+                            if (messageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE)
+                            {
+                                // Read message into class instance via properties, then iterate over each participant to receive it.
+                                ParticipantMessage messageToBeRelayed = new ParticipantMessage();
+                                incomingMessage.ReadAllProperties(messageToBeRelayed);
+
+                                Console.WriteLine("Relaying message from [" + messageToBeRelayed.Sender + "]: [" + messageToBeRelayed.Message + "]");
+                                
+                                NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
+                                outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
+                                outgoingMessage.WriteAllProperties(messageToBeRelayed);
+                                // Using 'm_server.Connections' as this contains connections for each connected client.
+                                // This results in a client that sends a message to receive it again.
+                                m_server.SendMessage(outgoingMessage, m_server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+                            }
+
                             break;
                         }
                     }
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
             }
         }
     }

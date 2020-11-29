@@ -18,4 +18,21 @@ namespace ChatNetworking
             Connection  = _connection;
         }
     }
+
+    public class ParticipantMessage
+    {
+        public string Sender    { get; set; }
+        public string Message   { get; set; }
+
+        public ParticipantMessage()
+        {
+
+        }
+
+        public ParticipantMessage(string _sender, string _message)
+        {
+            Sender  = _sender;
+            Message = _message;
+        }
+    }
 }

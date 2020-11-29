@@ -12,14 +12,17 @@ namespace ChatNetworking
         private Thread              m_clientThread;
         private List<Participant>   m_ParticipantList;
 
+        private bool                m_ready;
+
         public Client(string _name)
         {
             m_name = _name;
-            m_clientThread = new Thread(ClientInit);
+            m_clientThread = new Thread(Init);
             m_clientThread.Start();
+            m_ready = false;
         }
 
-        public void ClientInit()
+        public void Init()
         {
             m_ParticipantList = new List<Participant>();
 
@@ -33,18 +36,14 @@ namespace ChatNetworking
             outmsg.Write(m_name);
             m_client.Connect(Constants.HOST_IP, Constants.HOST_PORT, outmsg);
 
-            WaitForStartingInfo();
+            ReadLoop();
         }
 
-        private void WaitForStartingInfo()
+        private void ReadLoop()
         {
-            // When this is set to true, we are approved and ready to go
-            bool canStart = false;
-
             NetIncomingMessage incomingMessage;
             
-            // Loop until approved.
-            while (!canStart)
+            while (true)
             {
                 if ((incomingMessage = m_client.ReadMessage()) != null)
                 {
@@ -77,15 +76,20 @@ namespace ChatNetworking
                                     m_ParticipantList.Add(newParticipant);
                                 }
 
-                                canStart = true;
-
                                 Console.WriteLine("Client connected");
+                            }
+                            else if (messageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE)
+                            {
+                                ParticipantMessage newMessage = new ParticipantMessage();
+                                incomingMessage.ReadAllProperties(newMessage);
+                                Console.WriteLine(m_name + " got new message from [" + newMessage.Sender + "]: [" + newMessage.Message + "]");
                             }
                             break;
                         }
                         case NetIncomingMessageType.StatusChanged:
                         {
                             Console.WriteLine("Status changed: [" + incomingMessage.SenderConnection.Status + "]");
+                            m_ready = true;
                             break;
                         }
                         default:
@@ -95,12 +99,24 @@ namespace ChatNetworking
                         }
                     }
                 }
+                Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
             }
         }
 
-        private void MainLoop()
+        public void SendMessage(string _message)
         {
+            while (!m_ready)
+            {
+                Console.WriteLine("Can't send message, not yet ready");
+                Thread.Sleep(Constants.CLIENT_INIT_RETRY_MS);
+            }
 
+            NetOutgoingMessage outboundMessage = m_client.CreateMessage();
+            ParticipantMessage messageContents = new ParticipantMessage(m_name, _message);
+
+            outboundMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
+            outboundMessage.WriteAllProperties(messageContents);
+            m_client.SendMessage(outboundMessage, NetDeliveryMethod.ReliableOrdered);
         }
     }
 }

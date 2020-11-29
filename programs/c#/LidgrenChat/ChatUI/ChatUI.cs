@@ -6,14 +6,21 @@ namespace ChatUI
     public partial class ChatUI : Form
     {
         Server m_server;
-        Client m_client;
+        Client m_clientAlpha;
+        Client m_clientBravo;
 
         public ChatUI()
         {
             InitializeComponent();
 
             m_server = new Server();
-            m_client = new Client("ChatUI");
+            m_clientAlpha = new Client("Client Alpha");
+            m_clientBravo = new Client("Client Bravo");
+
+            //System.Threading.Thread.Sleep(5000);
+
+            m_clientAlpha.SendMessage("Alpha's colour: amber");
+            m_clientBravo.SendMessage("Bravo's colour: blue");
         }
     }
 }
