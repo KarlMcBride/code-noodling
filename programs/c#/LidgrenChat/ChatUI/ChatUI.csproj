@@ -40,16 +40,16 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChatUI.cs">
+    <Compile Include="MainUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ChatUI.Designer.cs">
-      <DependentUpon>ChatUI.cs</DependentUpon>
+    <Compile Include="MainUI.Designer.cs">
+      <DependentUpon>MainUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ChatUI.resx">
-      <DependentUpon>ChatUI.cs</DependentUpon>
+    <EmbeddedResource Include="MainUI.resx">
+      <DependentUpon>MainUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
