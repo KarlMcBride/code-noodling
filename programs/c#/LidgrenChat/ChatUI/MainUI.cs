@@ -5,24 +5,29 @@ namespace ChatUI
 {
     public partial class MainUI : Form
     {
-        Server m_server;
-        Client m_clientAlpha;
-        Client m_clientBravo;
+        private ClientServerInterface m_clientServerInterface;
 
         public MainUI()
         {
             InitializeComponent();
 
-            m_server = new Server();
-            m_clientAlpha = new Client("Client Alpha");
-            m_clientBravo = new Client("Client Bravo");
-
-            m_clientAlpha.QueueMessage("Alpha's colour: amber");
-            m_clientAlpha.QueueMessage("Alpha's location: NI");
-            m_clientBravo.QueueMessage("Bravo's colour: blue");
-
             labelLanIpAddress.Text      = "LAN IP   : " + Utils.GetLanIpAddress();
             labelPublicIpAddress.Text   = "Public IP: " + Utils.GetPublicIpAddress();
+
+            m_clientServerInterface = new ClientServerInterface();
+
+            DialogResult result = MessageBox.Show("Run chat server?", "Startup", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                m_clientServerInterface.StartClientAndServer("Bob");
+            }
+
+            m_clientServerInterface.SendMessage("Hello");
+        }
+
+        private void MainUI_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            m_clientServerInterface.Stop();
         }
     }
 }

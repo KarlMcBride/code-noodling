@@ -60,6 +60,7 @@
             this.Name = "MainUI";
             this.ShowIcon = false;
             this.Text = "Lidgren Chat";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainUI_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

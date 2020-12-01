@@ -12,18 +12,23 @@ namespace ChatNetworking
         private Thread              m_clientThread;
         private List<Participant>   m_ParticipantList;
 
+        private string              m_serverIp;
         private bool                m_connected;
+        private bool                m_keepRunning;
 
         private List<string>        m_outboundMessageList;
 
-        public Client(string _name)
+
+        public Client(string _name, string _serverIp)
         {
             m_name = _name;
             m_outboundMessageList = new List<string>();
             m_clientThread = new Thread(Init);
             m_clientThread.Start();
+            m_serverIp = _serverIp;
             m_connected = false;
         }
+
 
         public void Init()
         {
@@ -34,19 +39,21 @@ namespace ChatNetworking
             m_client = new NetClient(config);
             m_client.Start();
 
-            NetOutgoingMessage outmsg = m_client.CreateMessage();
-            outmsg.Write((byte)PacketTypes.LOGIN);
-            outmsg.Write(m_name);
-            m_client.Connect(Constants.HOST_IP, Constants.HOST_PORT, outmsg);
+            NetOutgoingMessage outgoingMessage = m_client.CreateMessage();
+            outgoingMessage.Write((byte)PacketTypes.LOGIN);
+            outgoingMessage.Write(m_name);
+            m_client.Connect(m_serverIp, Constants.HOST_PORT, outgoingMessage);
 
             ReadLoop();
         }
 
+
         private void ReadLoop()
         {
             NetIncomingMessage incomingMessage;
-            
-            while (true)
+
+            m_keepRunning = true;
+            while (m_keepRunning)
             {
                 if ((incomingMessage = m_client.ReadMessage()) != null)
                 {
@@ -68,10 +75,9 @@ namespace ChatNetworking
                                 m_ParticipantList.Clear();
                                 int participantCount = incomingMessage.ReadInt32();
 
-                                // Iterate all players
+                                // Iterate over all participants
                                 for (int index = 0; index < participantCount; index++)
                                 {
-                                    // Create new character to hold the data
                                     Participant newParticipant = new Participant();
 
                                     // Read all properties from the packet and add them into the newParticipant instance.
@@ -95,6 +101,12 @@ namespace ChatNetworking
                             m_connected = true;
                             break;
                         }
+                        case NetIncomingMessageType.WarningMessage:
+                        {
+                            string message = incomingMessage.ReadString();
+                            Console.WriteLine("Warning: [" + message + "]");
+                            break;
+                        }
                         default:
                         {
                             Console.WriteLine("Unknown message type received: [" + incomingMessage.MessageType + "]");
@@ -110,6 +122,8 @@ namespace ChatNetworking
 
                 Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
             }
+
+            m_client.Disconnect(m_name + " stopping");
         }
 
         private void SendNewMessages()
@@ -133,6 +147,12 @@ namespace ChatNetworking
         public void QueueMessage(string _message)
         {
             m_outboundMessageList.Add(_message);
+        }
+
+        public void Stop()
+        {
+            m_keepRunning = false;
+            m_clientThread.Join();
         }
     }
 }

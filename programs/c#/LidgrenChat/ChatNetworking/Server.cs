@@ -11,10 +11,14 @@ namespace ChatNetworking
         private Thread              m_serverThread;
         private List<Participant>   m_ParticipantList;
 
+        private bool                m_keepRunning;
+
+
         public Server()
         {
             ServerInit();
         }
+
 
         private void ServerInit()
         {
@@ -34,10 +38,13 @@ namespace ChatNetworking
             m_serverThread.Start();
         }
 
+
         private void MainLoop()
         {
             NetIncomingMessage incomingMessage;
-            while (true)
+
+            m_keepRunning = true;
+            while (m_keepRunning)
             {
                 incomingMessage = m_server.ReadMessage();
 
@@ -75,7 +82,7 @@ namespace ChatNetworking
                                 // Reliable = each packet arrives in order they were sent.
                                 m_server.SendMessage(outgoingMessage, incomingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered, 0);
 
-                                Console.WriteLine("Approved new connection [" + newParticipantName + "] and updated participant list");
+                                Console.WriteLine("Approved new connection [" + newParticipantName + "]");
                             }
                             break;
                         }
@@ -108,6 +115,15 @@ namespace ChatNetworking
 
                 Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
             }
+
+            m_server.Shutdown("Server stopping");
+        }
+
+
+        public void Stop()
+        {
+            m_keepRunning = false;
+            m_serverThread.Join();
         }
     }
 }
