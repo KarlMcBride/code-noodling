@@ -25,10 +25,10 @@ namespace ChatNetworking
         {
             m_name = _name;
             m_outboundMessageList = new List<string>();
-            m_clientThread = new Thread(Init);
-            m_clientThread.Start();
             m_serverIp = _serverIp;
             m_connected = false;
+            m_clientThread = new Thread(Init);
+            m_clientThread.Start();
         }
 
 

@@ -10,19 +10,26 @@ namespace ChatNetworking
     {
         public event EventHandler<ParticipantMessageEventArgs> InterfaceNewMessageReceived_Event;
 
+        public bool M_Connected;
+
         private Client m_client;
         private Server m_server;
 
-        public void StartClient(string _participantName, string _serverIp)
+        /// <summary>
+        /// Starts a client with provided participant name and server IP.
+        /// </summary>
+        /// <param name="_participantName">Name used to identify this participant.</param>
+        /// <param name="_serverIp">Optional: server IP to connect to. Default is local host IP.</param>
+        public void StartClient(string _participantName, string _serverIp = Constants.LOCAL_HOST_IP)
         {
             m_client = new Client(_participantName, _serverIp);
             m_client.ClientNewMessageReceived_Event += MessageReceivedHandler;
+            M_Connected = true;
         }
 
-        public void StartClientAndServer(string _participantName)
+        public void StartServer()
         {
             m_server = new Server();
-            StartClient(_participantName, Constants.LOCAL_HOST_IP);
         }
 
         public void SendMessage(string _message)
@@ -42,12 +49,17 @@ namespace ChatNetworking
             }
         }
 
-        public void Stop()
+        public void StopClient()
         {
             if (m_client != null)
             {
                 m_client.Stop();
             }
+        }
+
+        public void StopAll()
+        {
+            StopClient();
             if (m_server != null)
             {
                 m_server.Stop();
