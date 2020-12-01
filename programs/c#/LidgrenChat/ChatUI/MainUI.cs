@@ -1,4 +1,5 @@
 ﻿using ChatNetworking;
+using System;
 using System.Windows.Forms;
 
 namespace ChatUI
@@ -22,12 +23,29 @@ namespace ChatUI
                 m_clientServerInterface.StartClientAndServer("Bob");
             }
 
+            m_clientServerInterface.InterfaceNewMessageReceived_Event += HandleIncomingMessage;
+
             m_clientServerInterface.SendMessage("Hello");
         }
 
         private void MainUI_FormClosing(object sender, FormClosingEventArgs e)
         {
             m_clientServerInterface.Stop();
+        }
+
+        private void TextBoxChatInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Text.Length > 0 && e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;  // Disable Windows "ding" playing when pressing enter.
+                m_clientServerInterface.SendMessage(textBoxChatInput.Text);
+                textBoxChatInput.Text = "";
+            }
+        }
+
+        private void HandleIncomingMessage(object _sender, ParticipantMessageEventArgs _messageArgs)
+        {
+
         }
     }
 }

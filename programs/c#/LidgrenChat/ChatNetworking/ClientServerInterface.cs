@@ -1,4 +1,6 @@
-﻿namespace ChatNetworking
+﻿using System;
+
+namespace ChatNetworking
 {
     /// <summary>
     /// Interface that the UI can use to create a client or client & server according to the option selected.
@@ -6,12 +8,15 @@
     /// </summary>
     public class ClientServerInterface
     {
+        public event EventHandler<ParticipantMessageEventArgs> InterfaceNewMessageReceived_Event;
+
         private Client m_client;
         private Server m_server;
 
         public void StartClient(string _participantName, string _serverIp)
         {
             m_client = new Client(_participantName, _serverIp);
+            m_client.ClientNewMessageReceived_Event += MessageReceivedHandler;
         }
 
         public void StartClientAndServer(string _participantName)
@@ -23,6 +28,18 @@
         public void SendMessage(string _message)
         {
             m_client.QueueMessage(_message);
+        }
+
+        public void MessageReceivedHandler(object _sender, ParticipantMessageEventArgs _args)
+        {
+            if (InterfaceNewMessageReceived_Event != null)
+            {
+                InterfaceNewMessageReceived_Event(this, _args);
+            }
+            else
+            {
+                Console.WriteLine("Not invoking InterfaceNewMessageReceived_Event, nothing attached");
+            }
         }
 
         public void Stop()

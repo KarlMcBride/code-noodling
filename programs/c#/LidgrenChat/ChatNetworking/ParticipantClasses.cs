@@ -1,4 +1,5 @@
 ﻿using Lidgren.Network;
+using System;
 
 namespace ChatNetworking
 {
@@ -34,5 +35,17 @@ namespace ChatNetworking
             Sender  = _sender;
             Message = _message;
         }
+    }
+
+    public class ParticipantMessageEventArgs : EventArgs
+    {
+        public ParticipantMessageEventArgs(ParticipantMessage _newMessage)
+        {
+            Sender = _newMessage.Sender;
+            Message = _newMessage.Message;
+        }
+
+        public string Sender    { get; private set; }
+        public string Message   { get; private set; }
     }
 }

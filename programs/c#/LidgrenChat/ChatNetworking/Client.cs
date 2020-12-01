@@ -7,6 +7,8 @@ namespace ChatNetworking
 {
     public class Client
     {
+        public event EventHandler<ParticipantMessageEventArgs> ClientNewMessageReceived_Event;
+
         private string              m_name;
         private NetClient           m_client;
         private Thread              m_clientThread;
@@ -92,6 +94,17 @@ namespace ChatNetworking
                                 ParticipantMessage newMessage = new ParticipantMessage();
                                 incomingMessage.ReadAllProperties(newMessage);
                                 Console.WriteLine(m_name + " got new message from [" + newMessage.Sender + "]: [" + newMessage.Message + "]");
+
+                                ParticipantMessageEventArgs messageEventArgs = new ParticipantMessageEventArgs(newMessage);
+
+                                if (ClientNewMessageReceived_Event != null)
+                                {
+                                    ClientNewMessageReceived_Event(this, messageEventArgs);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Not invoking ClientNewMessageReceived_Event, nothing attached");
+                                }
                             }
                             break;
                         }

@@ -30,6 +30,7 @@
         {
             this.labelPublicIpAddress = new System.Windows.Forms.Label();
             this.labelLanIpAddress = new System.Windows.Forms.Label();
+            this.textBoxChatInput = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // labelPublicIpAddress
@@ -50,11 +51,20 @@
             this.labelLanIpAddress.TabIndex = 0;
             this.labelLanIpAddress.Text = "LAN IP   : - - - -";
             // 
+            // textBoxChatInput
+            // 
+            this.textBoxChatInput.Location = new System.Drawing.Point(13, 241);
+            this.textBoxChatInput.Name = "textBoxChatInput";
+            this.textBoxChatInput.Size = new System.Drawing.Size(249, 20);
+            this.textBoxChatInput.TabIndex = 2;
+            this.textBoxChatInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxChatInput_KeyDown);
+            // 
             // MainUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.textBoxChatInput);
             this.Controls.Add(this.labelLanIpAddress);
             this.Controls.Add(this.labelPublicIpAddress);
             this.Name = "MainUI";
@@ -70,6 +80,7 @@
 
         private System.Windows.Forms.Label labelPublicIpAddress;
         private System.Windows.Forms.Label labelLanIpAddress;
+        private System.Windows.Forms.TextBox textBoxChatInput;
     }
 }
 
