@@ -35,17 +35,21 @@ namespace ChatUI
 
         private void TextBoxChatInput_KeyDown(object sender, KeyEventArgs e)
         {
-            if (Text.Length > 0 && e.KeyCode == Keys.Enter)
+            if (textBoxChatInput.Text.Length > 0 && e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;  // Disable Windows "ding" playing when pressing enter.
                 m_clientServerInterface.SendMessage(textBoxChatInput.Text);
-                textBoxChatInput.Text = "";
+                textBoxChatInput.Clear();
             }
         }
 
         private void HandleIncomingMessage(object _sender, ParticipantMessageEventArgs _messageArgs)
         {
-
+            BeginInvoke(new MethodInvoker(delegate
+            {
+                textBoxChatHistory.AppendText(_messageArgs.Time.ToShortTimeString() + ": " + _messageArgs.Sender + ": " + _messageArgs.Message);
+                textBoxChatHistory.AppendText(Environment.NewLine);
+            }));
         }
     }
 }

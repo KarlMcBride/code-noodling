@@ -41,11 +41,13 @@ namespace ChatNetworking
     {
         public ParticipantMessageEventArgs(ParticipantMessage _newMessage)
         {
-            Sender = _newMessage.Sender;
+            Sender  = _newMessage.Sender;
             Message = _newMessage.Message;
+            Time    = DateTime.UtcNow;
         }
 
-        public string Sender    { get; private set; }
-        public string Message   { get; private set; }
+        public string   Sender  { get; private set; }
+        public string   Message { get; private set; }
+        public DateTime Time    { get; private set; }
     }
 }
