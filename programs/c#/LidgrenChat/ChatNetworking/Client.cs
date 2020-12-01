@@ -8,7 +8,7 @@ namespace ChatNetworking
     public class Client
     {
         public event EventHandler<ParticipantMessageEventArgs>          NewMessageReceived_Event;
-        public event EventHandler<ConnectedParticipantListEventArgs>    NewParticipantListReceived_Event;
+        public event EventHandler<ConnectedParticipantListEventArgs>    NewConnectedParticipantListReceived_Event;
 
         private string              m_name;
         private NetClient           m_client;
@@ -89,7 +89,7 @@ namespace ChatNetworking
                                 }
 
                                 ConnectedParticipantListEventArgs newParticipantListEventArgs = new ConnectedParticipantListEventArgs(m_ParticipantList);
-                                NewParticipantListReceived_Event?.Invoke(this, newParticipantListEventArgs);
+                                NewConnectedParticipantListReceived_Event?.Invoke(this, newParticipantListEventArgs);
 
                                 Console.WriteLine("Client connected");
                             }
@@ -139,8 +139,6 @@ namespace ChatNetworking
 
                 Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
             }
-
-            m_client.Disconnect(m_name + " stopping");
         }
 
         private void SendNewMessages()
@@ -170,6 +168,19 @@ namespace ChatNetworking
         {
             m_keepRunning = false;
             m_clientThread.Join();
+
+            SendDisconnectMessage();
+            m_client.Disconnect(m_name + " stopping");
+        }
+
+        private void SendDisconnectMessage()
+        {
+            NetOutgoingMessage outboundMessage = m_client.CreateMessage();
+            outboundMessage.Write((byte)PacketTypes.PARTICIPANT_DISCONNECTING);
+            ParticipantMessage messageContents = new ParticipantMessage(m_name, "DISCONNECTING");
+
+            outboundMessage.WriteAllProperties(messageContents);
+            m_client.SendMessage(outboundMessage, NetDeliveryMethod.ReliableOrdered);
         }
     }
 }

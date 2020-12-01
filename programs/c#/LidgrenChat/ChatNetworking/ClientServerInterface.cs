@@ -24,8 +24,8 @@ namespace ChatNetworking
         public void StartClient(string _participantName, string _serverIp = Constants.LOCAL_HOST_IP)
         {
             m_client = new Client(_participantName, _serverIp);
-            m_client.NewMessageReceived_Event           += InterfaceNewMessageReceived_Event;
-            m_client.NewParticipantListReceived_Event   += InterfaceParticipantListChanged_Event;
+            m_client.NewMessageReceived_Event                   += InterfaceNewMessageReceived_Event;
+            m_client.NewConnectedParticipantListReceived_Event  += InterfaceParticipantListChanged_Event;
             M_Connected = true;
         }
 

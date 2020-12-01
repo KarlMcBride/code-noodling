@@ -12,7 +12,6 @@ namespace ChatNetworking
         private List<Participant>   m_ParticipantList;
 
         private bool                m_keepRunning;
-        private bool                m_sendUpdatedParticipantList;
         private int                 m_lastConnectedParticipantCount;
 
 
@@ -46,7 +45,6 @@ namespace ChatNetworking
             NetIncomingMessage incomingMessage;
 
             m_keepRunning = true;
-            m_sendUpdatedParticipantList = false;
             while (m_keepRunning)
             {
                 incomingMessage = m_server.ReadMessage();
@@ -84,7 +82,6 @@ namespace ChatNetworking
                                 // Reliable = each packet arrives in order they were sent.
                                 m_server.SendMessage(outgoingMessage, incomingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered, 0);
                                 Console.WriteLine("Approved new connection [" + newParticipantName + "]");
-                                m_sendUpdatedParticipantList = true;
                             }
                             break;
                         }
@@ -101,13 +98,28 @@ namespace ChatNetworking
                                 incomingMessage.ReadAllProperties(messageToBeRelayed);
 
                                 Console.WriteLine("Relaying message from [" + messageToBeRelayed.Sender + "]: [" + messageToBeRelayed.Message + "]");
-                                
+
                                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
                                 outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
                                 outgoingMessage.WriteAllProperties(messageToBeRelayed);
                                 // Using 'm_server.Connections' as this contains connections for each connected client.
                                 // This results in a client that sends a message to receive it again.
                                 m_server.SendMessage(outgoingMessage, m_server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+                            }
+                            else if (messageType == (byte)PacketTypes.PARTICIPANT_DISCONNECTING)
+                            {
+                                ParticipantMessage disconnectMessage = new ParticipantMessage();
+                                incomingMessage.ReadAllProperties(disconnectMessage);
+
+                                for (int index = 0; index < m_ParticipantList.Count; index++)
+                                {
+                                    if (disconnectMessage.Sender == m_ParticipantList[index].Name)
+                                    {
+                                        Console.WriteLine("Removing " + disconnectMessage.Sender + " from participant list");
+                                        m_ParticipantList.RemoveAt(index);
+                                        break;
+                                    }
+                                }
                             }
 
                             break;
@@ -126,9 +138,8 @@ namespace ChatNetworking
 
         private void SendParticipantListIfChanged()
         {
-            if ((m_sendUpdatedParticipantList && m_lastConnectedParticipantCount != m_server.ConnectionsCount))
+            if (m_lastConnectedParticipantCount != m_server.ConnectionsCount)
             {
-                m_sendUpdatedParticipantList = false;
                 m_lastConnectedParticipantCount = m_server.ConnectionsCount;
 
                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
