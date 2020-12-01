@@ -7,7 +7,8 @@ namespace ChatNetworking
 {
     public class Client
     {
-        public event EventHandler<ParticipantMessageEventArgs> ClientNewMessageReceived_Event;
+        public event EventHandler<ParticipantMessageEventArgs>          NewMessageReceived_Event;
+        public event EventHandler<ConnectedParticipantListEventArgs>    NewParticipantListReceived_Event;
 
         private string              m_name;
         private NetClient           m_client;
@@ -87,6 +88,9 @@ namespace ChatNetworking
                                     m_ParticipantList.Add(newParticipant);
                                 }
 
+                                ConnectedParticipantListEventArgs newParticipantListEventArgs = new ConnectedParticipantListEventArgs(m_ParticipantList);
+                                NewParticipantListReceived_Event?.Invoke(this, newParticipantListEventArgs);
+
                                 Console.WriteLine("Client connected");
                             }
                             else if (messageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE)
@@ -97,9 +101,9 @@ namespace ChatNetworking
 
                                 ParticipantMessageEventArgs messageEventArgs = new ParticipantMessageEventArgs(newMessage);
 
-                                if (ClientNewMessageReceived_Event != null)
+                                if (NewMessageReceived_Event != null)
                                 {
-                                    ClientNewMessageReceived_Event(this, messageEventArgs);
+                                    NewMessageReceived_Event(this, messageEventArgs);
                                 }
                                 else
                                 {

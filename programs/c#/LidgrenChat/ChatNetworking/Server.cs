@@ -12,6 +12,8 @@ namespace ChatNetworking
         private List<Participant>   m_ParticipantList;
 
         private bool                m_keepRunning;
+        private bool                m_sendUpdatedParticipantList;
+        private int                 m_lastConnectedParticipantCount;
 
 
         public Server()
@@ -44,6 +46,7 @@ namespace ChatNetworking
             NetIncomingMessage incomingMessage;
 
             m_keepRunning = true;
+            m_sendUpdatedParticipantList = false;
             while (m_keepRunning)
             {
                 incomingMessage = m_server.ReadMessage();
@@ -64,7 +67,6 @@ namespace ChatNetworking
                                 string newParticipantName = incomingMessage.ReadString();
                                 m_ParticipantList.Add(new Participant(newParticipantName, incomingMessage.SenderConnection));
 
-                                // Create message, that can be written and sent
                                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
                                 outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT);
                                 outgoingMessage.Write(m_ParticipantList.Count);
@@ -81,8 +83,8 @@ namespace ChatNetworking
 
                                 // Reliable = each packet arrives in order they were sent.
                                 m_server.SendMessage(outgoingMessage, incomingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered, 0);
-
                                 Console.WriteLine("Approved new connection [" + newParticipantName + "]");
+                                m_sendUpdatedParticipantList = true;
                             }
                             break;
                         }
@@ -113,10 +115,35 @@ namespace ChatNetworking
                     }
                 }
 
+                SendParticipantListIfChanged();
+
                 Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
             }
 
             m_server.Shutdown("Server stopping");
+        }
+
+
+        private void SendParticipantListIfChanged()
+        {
+            if ((m_sendUpdatedParticipantList && m_lastConnectedParticipantCount != m_server.ConnectionsCount))
+            {
+                m_sendUpdatedParticipantList = false;
+                m_lastConnectedParticipantCount = m_server.ConnectionsCount;
+
+                NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
+                outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT);
+                outgoingMessage.Write(m_ParticipantList.Count);
+
+                foreach (Participant participant in m_ParticipantList)
+                {
+                    outgoingMessage.WriteAllProperties(participant);
+                }
+                if (m_server.ConnectionsCount > 0)
+                {
+                    m_server.SendMessage(outgoingMessage, m_server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+                }
+            }
         }
 
 

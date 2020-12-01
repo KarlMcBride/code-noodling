@@ -1,5 +1,6 @@
 ﻿using Lidgren.Network;
 using System;
+using System.Collections.Generic;
 
 namespace ChatNetworking
 {
@@ -49,5 +50,15 @@ namespace ChatNetworking
         public string   Sender  { get; private set; }
         public string   Message { get; private set; }
         public DateTime Time    { get; private set; }
+    }
+
+    public class ConnectedParticipantListEventArgs : EventArgs
+    {
+        public ConnectedParticipantListEventArgs(List<Participant> _participantList)
+        {
+            ConnectedList = _participantList;
+        }
+
+        public List<Participant> ConnectedList { get; private set; }
     }
 }

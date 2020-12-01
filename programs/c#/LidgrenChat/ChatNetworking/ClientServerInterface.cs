@@ -8,7 +8,8 @@ namespace ChatNetworking
     /// </summary>
     public class ClientServerInterface
     {
-        public event EventHandler<ParticipantMessageEventArgs> InterfaceNewMessageReceived_Event;
+        public event EventHandler<ParticipantMessageEventArgs>          InterfaceNewMessageReceived_Event;
+        public event EventHandler<ConnectedParticipantListEventArgs>    InterfaceParticipantListChanged_Event;
 
         public bool M_Connected;
 
@@ -23,7 +24,8 @@ namespace ChatNetworking
         public void StartClient(string _participantName, string _serverIp = Constants.LOCAL_HOST_IP)
         {
             m_client = new Client(_participantName, _serverIp);
-            m_client.ClientNewMessageReceived_Event += MessageReceivedHandler;
+            m_client.NewMessageReceived_Event           += InterfaceNewMessageReceived_Event;
+            m_client.NewParticipantListReceived_Event   += InterfaceParticipantListChanged_Event;
             M_Connected = true;
         }
 
@@ -35,18 +37,6 @@ namespace ChatNetworking
         public void SendMessage(string _message)
         {
             m_client.QueueMessage(_message);
-        }
-
-        public void MessageReceivedHandler(object _sender, ParticipantMessageEventArgs _args)
-        {
-            if (InterfaceNewMessageReceived_Event != null)
-            {
-                InterfaceNewMessageReceived_Event(this, _args);
-            }
-            else
-            {
-                Console.WriteLine("Not invoking InterfaceNewMessageReceived_Event, nothing attached");
-            }
         }
 
         public void StopClient()

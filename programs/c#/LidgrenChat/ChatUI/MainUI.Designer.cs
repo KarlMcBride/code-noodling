@@ -37,6 +37,9 @@
             this.textBoxServerIP = new System.Windows.Forms.TextBox();
             this.labelServerIP = new System.Windows.Forms.Label();
             this.buttonConnectDisconnect = new System.Windows.Forms.Button();
+            this.groupBoxConnection = new System.Windows.Forms.GroupBox();
+            this.textBoxConnectedParticipants = new System.Windows.Forms.TextBox();
+            this.groupBoxConnection.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelPublicIpAddress
@@ -81,7 +84,7 @@
             // labelParticipantName
             // 
             this.labelParticipantName.AutoSize = true;
-            this.labelParticipantName.Location = new System.Drawing.Point(363, 15);
+            this.labelParticipantName.Location = new System.Drawing.Point(6, 16);
             this.labelParticipantName.Name = "labelParticipantName";
             this.labelParticipantName.Size = new System.Drawing.Size(60, 13);
             this.labelParticipantName.TabIndex = 0;
@@ -89,7 +92,7 @@
             // 
             // textBoxParticipantName
             // 
-            this.textBoxParticipantName.Location = new System.Drawing.Point(429, 12);
+            this.textBoxParticipantName.Location = new System.Drawing.Point(72, 13);
             this.textBoxParticipantName.Name = "textBoxParticipantName";
             this.textBoxParticipantName.Size = new System.Drawing.Size(125, 20);
             this.textBoxParticipantName.TabIndex = 2;
@@ -97,7 +100,7 @@
             // 
             // textBoxServerIP
             // 
-            this.textBoxServerIP.Location = new System.Drawing.Point(429, 38);
+            this.textBoxServerIP.Location = new System.Drawing.Point(72, 39);
             this.textBoxServerIP.Name = "textBoxServerIP";
             this.textBoxServerIP.Size = new System.Drawing.Size(125, 20);
             this.textBoxServerIP.TabIndex = 4;
@@ -106,7 +109,7 @@
             // labelServerIP
             // 
             this.labelServerIP.AutoSize = true;
-            this.labelServerIP.Location = new System.Drawing.Point(363, 41);
+            this.labelServerIP.Location = new System.Drawing.Point(6, 42);
             this.labelServerIP.Name = "labelServerIP";
             this.labelServerIP.Size = new System.Drawing.Size(51, 13);
             this.labelServerIP.TabIndex = 3;
@@ -115,7 +118,7 @@
             // buttonConnectDisconnect
             // 
             this.buttonConnectDisconnect.Enabled = false;
-            this.buttonConnectDisconnect.Location = new System.Drawing.Point(453, 64);
+            this.buttonConnectDisconnect.Location = new System.Drawing.Point(96, 65);
             this.buttonConnectDisconnect.Name = "buttonConnectDisconnect";
             this.buttonConnectDisconnect.Size = new System.Drawing.Size(75, 23);
             this.buttonConnectDisconnect.TabIndex = 5;
@@ -123,16 +126,38 @@
             this.buttonConnectDisconnect.UseVisualStyleBackColor = true;
             this.buttonConnectDisconnect.Click += new System.EventHandler(this.ButtonConnectDisconnect_Click);
             // 
+            // groupBoxConnection
+            // 
+            this.groupBoxConnection.Controls.Add(this.buttonConnectDisconnect);
+            this.groupBoxConnection.Controls.Add(this.labelParticipantName);
+            this.groupBoxConnection.Controls.Add(this.textBoxServerIP);
+            this.groupBoxConnection.Controls.Add(this.textBoxParticipantName);
+            this.groupBoxConnection.Controls.Add(this.labelServerIP);
+            this.groupBoxConnection.Location = new System.Drawing.Point(311, 12);
+            this.groupBoxConnection.Name = "groupBoxConnection";
+            this.groupBoxConnection.Size = new System.Drawing.Size(203, 100);
+            this.groupBoxConnection.TabIndex = 6;
+            this.groupBoxConnection.TabStop = false;
+            // 
+            // textBoxConnectedParticipants
+            // 
+            this.textBoxConnectedParticipants.Location = new System.Drawing.Point(311, 118);
+            this.textBoxConnectedParticipants.Multiline = true;
+            this.textBoxConnectedParticipants.Name = "textBoxConnectedParticipants";
+            this.textBoxConnectedParticipants.ReadOnly = true;
+            this.textBoxConnectedParticipants.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxConnectedParticipants.Size = new System.Drawing.Size(203, 245);
+            this.textBoxConnectedParticipants.TabIndex = 7;
+            this.textBoxConnectedParticipants.TabStop = false;
+            this.textBoxConnectedParticipants.WordWrap = false;
+            // 
             // MainUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.buttonConnectDisconnect);
-            this.Controls.Add(this.textBoxServerIP);
-            this.Controls.Add(this.labelServerIP);
-            this.Controls.Add(this.textBoxParticipantName);
-            this.Controls.Add(this.labelParticipantName);
+            this.Controls.Add(this.textBoxConnectedParticipants);
+            this.Controls.Add(this.groupBoxConnection);
             this.Controls.Add(this.textBoxChatHistory);
             this.Controls.Add(this.textBoxChatInput);
             this.Controls.Add(this.labelLanIpAddress);
@@ -141,6 +166,8 @@
             this.ShowIcon = false;
             this.Text = "Lidgren Chat";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainUI_FormClosing);
+            this.groupBoxConnection.ResumeLayout(false);
+            this.groupBoxConnection.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -157,6 +184,8 @@
         private System.Windows.Forms.TextBox textBoxServerIP;
         private System.Windows.Forms.Label labelServerIP;
         private System.Windows.Forms.Button buttonConnectDisconnect;
+        private System.Windows.Forms.GroupBox groupBoxConnection;
+        private System.Windows.Forms.TextBox textBoxConnectedParticipants;
     }
 }
 

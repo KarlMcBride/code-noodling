@@ -12,8 +12,13 @@ namespace ChatUI
         {
             InitializeComponent();
 
-            labelLanIpAddress.Text      = "LAN IP   : " + Utils.GetLanIpAddress();
-            labelPublicIpAddress.Text   = "Public IP: " + Utils.GetPublicIpAddress();
+            string lanIP = Utils.GetLanIpAddress();
+            string pubIP = Utils.GetPublicIpAddress();
+
+            labelLanIpAddress.Text      = "LAN IP   : " + lanIP;
+            labelPublicIpAddress.Text   = "Public IP: " + pubIP;
+
+            textBoxServerIP.Text = lanIP;
 
             m_clientServerInterface = new ClientServerInterface();
 
@@ -23,7 +28,8 @@ namespace ChatUI
                 m_clientServerInterface.StartServer();
             }
 
-            m_clientServerInterface.InterfaceNewMessageReceived_Event += HandleIncomingMessage;
+            m_clientServerInterface.InterfaceNewMessageReceived_Event       += HandleIncomingMessage;
+            m_clientServerInterface.InterfaceParticipantListChanged_Event   += HandleParticipantListChange;
         }
 
         private void MainUI_FormClosing(object sender, FormClosingEventArgs e)
@@ -68,14 +74,8 @@ namespace ChatUI
             if (!m_clientServerInterface.M_Connected)
             {
                 m_clientServerInterface.StartClient(textBoxParticipantName.Text, textBoxServerIP.Text);
-                buttonConnectDisconnect.Text = "Disconnect";
+                groupBoxConnection.Enabled = false;
                 textBoxChatInput.Enabled = true;
-            }
-            else
-            {
-                m_clientServerInterface.StopClient();
-                buttonConnectDisconnect.Text = "Connect";
-                textBoxChatInput.Enabled = false;
             }
         }
 
@@ -85,6 +85,20 @@ namespace ChatUI
             {
                 textBoxChatHistory.AppendText(_messageArgs.Time.ToShortTimeString() + ": " + _messageArgs.Sender + ": " + _messageArgs.Message);
                 textBoxChatHistory.AppendText(Environment.NewLine);
+            }));
+        }
+
+        private void HandleParticipantListChange(object _sender, ConnectedParticipantListEventArgs _participantListArgs)
+        {
+            BeginInvoke(new MethodInvoker(delegate
+            {
+                textBoxConnectedParticipants.Clear();
+
+                foreach (var participant in _participantListArgs.ConnectedList)
+                {
+                    textBoxConnectedParticipants.AppendText(participant.Name);
+                    textBoxConnectedParticipants.AppendText(Environment.NewLine);
+                }
             }));
         }
     }
