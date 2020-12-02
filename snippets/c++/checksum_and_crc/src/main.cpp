@@ -7,7 +7,15 @@
 int main()
 {
     // Last two digits are not used when calculating CRC
-    uint8_t data_array[] = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+    uint8_t data_array[] = {         0x53, 0x00, 0x19, 0x00, 0x06, 0x6B,
+        0x00, // Reader number
+        0x02, // Text command (behaviour)
+        0x00, // Temp text time
+        0x01, // Row where first character will be displayed (1-indexed)
+        0x01, // Column where first character will be displayed (1-indexed)
+        0x0B, // Text length
+        0x54, 0x65, 0x73, 0x74, 0x5F, 0x33, 0x2D, 0x31, 0x32, 0x2D, 0x31,
+        0x84, 0xC8 };
     uint8_t data_length = sizeof(data_array);
 
     auto checksum = calculate_checksum(data_array, data_length);

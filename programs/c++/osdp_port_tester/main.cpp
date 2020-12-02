@@ -46,6 +46,21 @@ int main()
     {
       return -1;
     }
+
+    // 0: reader number, 1: tone code, 2: on time, 3: off time, 4: count
+    // BUZ byte numbering                                                    0     1     2     3     4
+    uint8_t triple_buz_cmd[]        = { 0x53, 0x00, 0x0D, 0x00, 0x05, 0x6A, 0x00, 0x02, 0x0A, 0x05, 0x01, 0xED, 0x7A };
+    uint8_t perm_buz_cmd[]          = { 0x53, 0x00, 0x0D, 0x00, 0x05, 0x6A, 0x00, 0x02, 0x0A, 0x05, 0x00, 0xCC, 0x6A };
+    uint8_t clear_buz_cmd[]         = { 0x53, 0x00, 0x0D, 0x00, 0x05, 0x6A, 0x00, 0x01, 0x0A, 0x05, 0x00, 0x10, 0xF1 };
+
+    std::cout << "Sending triple_buz_cmd" << std::endl;
+    write(serial_port_fd, &triple_buz_cmd, 13);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+    std::cout << "Sending perm_buz_cmd" << std::endl;
+    write(serial_port_fd, &perm_buz_cmd, 13);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
     // LED byte numbering                                                    0     1     2     3     4     5     6     7     8     9     10    11    12    13
     uint8_t perm_red_led_cmd[]      = { 0x53, 0x00, 0x16, 0x00, 0x05, 0x69, 0x00, 0x00, 0x00, 0x03, 0x03, 0x01, 0x02, 0x1E, 0x00, 0x01, 0x1E, 0x00, 0x01, 0x00, 0xC8, 0x7B };
     uint8_t perm_green_led_cmd[]    = { 0x53, 0x00, 0x16, 0x00, 0x05, 0x69, 0x00, 0x00, 0x00, 0x03, 0x03, 0x01, 0x02, 0x1E, 0x00, 0x01, 0x1E, 0x00, 0x02, 0x00, 0x9B, 0x2E };
@@ -68,6 +83,11 @@ int main()
     std::cout << "Setting perm amber" << std::endl;
     write(serial_port_fd, &perm_amber_led_cmd, 22);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    std::cout << "Sending clear_buz_cmd" << std::endl;
+    write(serial_port_fd, &clear_buz_cmd, 13);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
     std::cout << "Setting perm blue" << std::endl;
     write(serial_port_fd, &perm_blue_led_cmd, 22);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
