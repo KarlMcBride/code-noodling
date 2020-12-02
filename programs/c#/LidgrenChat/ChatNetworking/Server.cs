@@ -58,7 +58,7 @@ namespace ChatNetworking
                         {
                             if (incomingMessage.ReadByte() == (byte)PacketTypes.LOGIN)
                             {
-                                Console.WriteLine("Incoming LOGIN");
+                                Console.WriteLine("Server: incoming login");
                                 incomingMessage.SenderConnection.Approve();
 
                                 // Get participant name and add them to the participant list.
@@ -81,7 +81,7 @@ namespace ChatNetworking
 
                                 // Reliable = each packet arrives in order they were sent.
                                 m_server.SendMessage(outgoingMessage, incomingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered, 0);
-                                Console.WriteLine("Approved new connection [" + newParticipantName + "]");
+                                Console.WriteLine("Server: approved new connection [" + newParticipantName + "]");
                             }
                             break;
                         }
@@ -90,14 +90,14 @@ namespace ChatNetworking
                         {
                             // First byte indicates message type. Read it before logic switching as once we read it,
                             // it's removed from the incoming packet.
-                            byte messageType = incomingMessage.ReadByte();
-                            if (messageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE)
+                            byte dataMessageType = incomingMessage.ReadByte();
+                            if (dataMessageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE)
                             {
                                 // Read message into class instance via properties, then iterate over each participant to receive it.
                                 ParticipantMessage messageToBeRelayed = new ParticipantMessage();
                                 incomingMessage.ReadAllProperties(messageToBeRelayed);
 
-                                Console.WriteLine("Relaying message from [" + messageToBeRelayed.Sender + "]: [" + messageToBeRelayed.Message + "]");
+                                Console.WriteLine("Server: relaying message from [" + messageToBeRelayed.Sender + "]: [" + messageToBeRelayed.Message + "]");
 
                                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
                                 outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
@@ -106,7 +106,7 @@ namespace ChatNetworking
                                 // This results in a client that sends a message to receive it again.
                                 m_server.SendMessage(outgoingMessage, m_server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
                             }
-                            else if (messageType == (byte)PacketTypes.PARTICIPANT_DISCONNECTING)
+                            else if (dataMessageType == (byte)PacketTypes.PARTICIPANT_DISCONNECTING)
                             {
                                 ParticipantMessage disconnectMessage = new ParticipantMessage();
                                 incomingMessage.ReadAllProperties(disconnectMessage);
@@ -115,13 +115,22 @@ namespace ChatNetworking
                                 {
                                     if (disconnectMessage.Sender == m_ParticipantList[index].Name)
                                     {
-                                        Console.WriteLine("Removing " + disconnectMessage.Sender + " from participant list");
+                                        Console.WriteLine("Server: removing " + disconnectMessage.Sender + " from participant list");
                                         m_ParticipantList.RemoveAt(index);
                                         break;
                                     }
                                 }
                             }
+                            else
+                            {
+                                Console.WriteLine("Server: unknown data message type received [" + dataMessageType + "]");
+                            }
 
+                            break;
+                        }
+                        default:
+                        {
+                            Console.WriteLine("Server: unknown message type received: [" + incomingMessage.MessageType + "]");
                             break;
                         }
                     }

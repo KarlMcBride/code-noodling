@@ -107,26 +107,26 @@ namespace ChatNetworking
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Not invoking ClientNewMessageReceived_Event, nothing attached");
+                                    Console.WriteLine("Client: not invoking ClientNewMessageReceived_Event, nothing attached");
                                 }
                             }
                             break;
                         }
                         case NetIncomingMessageType.StatusChanged:
                         {
-                            Console.WriteLine("Status changed: [" + incomingMessage.SenderConnection.Status + "]");
+                            Console.WriteLine("Client: status changed: [" + incomingMessage.SenderConnection.Status + "]");
                             m_connected = true;
                             break;
                         }
                         case NetIncomingMessageType.WarningMessage:
                         {
                             string message = incomingMessage.ReadString();
-                            Console.WriteLine("Warning: [" + message + "]");
+                            Console.WriteLine("Clinet: warning: [" + message + "]");
                             break;
                         }
                         default:
                         {
-                            Console.WriteLine("Unknown message type received: [" + incomingMessage.MessageType + "]");
+                            Console.WriteLine("Client: unknown message type received: [" + incomingMessage.MessageType + "]");
                             break;
                         }
                     }
