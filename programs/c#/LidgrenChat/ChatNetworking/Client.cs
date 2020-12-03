@@ -37,7 +37,7 @@ namespace ChatNetworking
         {
             m_ParticipantList = new List<Participant>();
 
-            NetPeerConfiguration config = new NetPeerConfiguration(Constants.APP_IDENTIFIER);
+            NetPeerConfiguration config = new NetPeerConfiguration(SharedConstants.APP_IDENTIFIER);
 
             m_client = new NetClient(config);
             m_client.Start();
@@ -45,7 +45,7 @@ namespace ChatNetworking
             NetOutgoingMessage outgoingMessage = m_client.CreateMessage();
             outgoingMessage.Write((byte)PacketTypes.LOGIN);
             outgoingMessage.Write(m_name);
-            m_client.Connect(m_serverIp, Constants.HOST_PORT, outgoingMessage);
+            m_client.Connect(m_serverIp, SharedConstants.HOST_PORT, outgoingMessage);
 
             ReadLoop();
         }
@@ -65,10 +65,10 @@ namespace ChatNetworking
                         // All manually sent messages are type of "Data".
                         case NetIncomingMessageType.Data:
                         {
-                            // First byte indicates message type. Read it before logic switching as once we read it,
-                            // it's removed from the incoming packet.
+                            // First byte indicates message type. Read it before logic switching instead of peeking
+                            // at it repeatedly.
                             byte messageType = incomingMessage.ReadByte();
-                            if (messageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT)
+                            if (messageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_UPDATED_PARTICIPANT_LIST)
                             {
                                 // Packet will contain
                                 //    - byte            : packet type (PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT).
@@ -90,14 +90,11 @@ namespace ChatNetworking
 
                                 ConnectedParticipantListEventArgs newParticipantListEventArgs = new ConnectedParticipantListEventArgs(m_ParticipantList);
                                 NewConnectedParticipantListReceived_Event?.Invoke(this, newParticipantListEventArgs);
-
-                                Console.WriteLine("Client connected");
                             }
                             else if (messageType == (byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE)
                             {
                                 ParticipantMessage newMessage = new ParticipantMessage();
                                 incomingMessage.ReadAllProperties(newMessage);
-                                Console.WriteLine(m_name + " got new message from [" + newMessage.Sender + "]: [" + newMessage.Message + "]");
 
                                 ParticipantMessageEventArgs messageEventArgs = new ParticipantMessageEventArgs(newMessage);
 
@@ -137,7 +134,7 @@ namespace ChatNetworking
                     SendNewMessages();
                 }
 
-                Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
+                Thread.Sleep(SharedConstants.MAIN_LOOP_DELAY_MS);
             }
         }
 
@@ -176,7 +173,7 @@ namespace ChatNetworking
         private void SendDisconnectMessage()
         {
             NetOutgoingMessage outboundMessage = m_client.CreateMessage();
-            outboundMessage.Write((byte)PacketTypes.PARTICIPANT_DISCONNECTING);
+            outboundMessage.Write((byte)PacketTypes.CLIENT_DISCONNECTING);
             ParticipantMessage messageContents = new ParticipantMessage(m_name, "DISCONNECTING");
 
             outboundMessage.WriteAllProperties(messageContents);

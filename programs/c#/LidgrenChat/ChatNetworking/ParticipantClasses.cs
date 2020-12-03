@@ -6,35 +6,35 @@ namespace ChatNetworking
 {
     public class Participant
     {
-        public string           Name        { get; set; }
-        public NetConnection    Connection  { get; set; }
+        public string Name      { get; set; }
+        public string EndPoint  { get; set; }
 
         public Participant()
         {
 
         }
 
-        public Participant(string _name, NetConnection _connection)
+        public Participant(string _name, string _endPoint)
         {
-            Name        = _name;
-            Connection  = _connection;
+            Name     = _name;
+            EndPoint = _endPoint;
         }
     }
 
     public class ParticipantMessage
     {
-        public string Sender    { get; set; }
-        public string Message   { get; set; }
+        public string SenderName    { get; set; }
+        public string Message       { get; set; }
 
         public ParticipantMessage()
         {
 
         }
 
-        public ParticipantMessage(string _sender, string _message)
+        public ParticipantMessage(string _senderName, string _message)
         {
-            Sender  = _sender;
-            Message = _message;
+            SenderName  = _senderName;
+            Message     = _message;
         }
     }
 
@@ -42,14 +42,14 @@ namespace ChatNetworking
     {
         public ParticipantMessageEventArgs(ParticipantMessage _newMessage)
         {
-            Sender  = _newMessage.Sender;
-            Message = _newMessage.Message;
-            Time    = DateTime.UtcNow;
+            SenderName  = _newMessage.SenderName;
+            Message     = _newMessage.Message;
+            Time        = DateTime.UtcNow;
         }
 
-        public string   Sender  { get; private set; }
-        public string   Message { get; private set; }
-        public DateTime Time    { get; private set; }
+        public string   SenderName  { get; private set; }
+        public string   Message     { get; private set; }
+        public DateTime Time        { get; private set; }
     }
 
     public class ConnectedParticipantListEventArgs : EventArgs

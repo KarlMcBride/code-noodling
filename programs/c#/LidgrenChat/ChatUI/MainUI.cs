@@ -83,7 +83,7 @@ namespace ChatUI
         {
             BeginInvoke(new MethodInvoker(delegate
             {
-                textBoxChatHistory.AppendText(_messageArgs.Time.ToShortTimeString() + ": " + _messageArgs.Sender + ": " + _messageArgs.Message);
+                textBoxChatHistory.AppendText(_messageArgs.Time.ToShortTimeString() + ": " + _messageArgs.SenderName + ": " + _messageArgs.Message);
                 textBoxChatHistory.AppendText(Environment.NewLine);
             }));
         }

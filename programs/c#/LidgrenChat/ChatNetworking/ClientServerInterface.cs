@@ -21,7 +21,7 @@ namespace ChatNetworking
         /// </summary>
         /// <param name="_participantName">Name used to identify this participant.</param>
         /// <param name="_serverIp">Optional: server IP to connect to. Default is local host IP.</param>
-        public void StartClient(string _participantName, string _serverIp = Constants.LOCAL_HOST_IP)
+        public void StartClient(string _participantName, string _serverIp = SharedConstants.LOCAL_HOST_IP)
         {
             m_client = new Client(_participantName, _serverIp);
             m_client.NewMessageReceived_Event                   += InterfaceNewMessageReceived_Event;

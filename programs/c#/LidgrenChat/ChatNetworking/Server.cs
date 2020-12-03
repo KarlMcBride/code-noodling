@@ -25,12 +25,15 @@ namespace ChatNetworking
         {
             m_ParticipantList = new List<Participant>();
 
-            NetPeerConfiguration config = new NetPeerConfiguration(Constants.APP_IDENTIFIER)
+            NetPeerConfiguration config = new NetPeerConfiguration(SharedConstants.APP_IDENTIFIER)
             {
-                Port = Constants.HOST_PORT,
-                MaximumConnections = 200
+                Port                = SharedConstants.HOST_PORT,
+                MaximumConnections  = 200,
+                PingInterval        = SharedConstants.PING_INTERVAL_SECONDS,
+                ConnectionTimeout   = SharedConstants.CONNECTION_TIMEOUT_SECONDS
             };
             config.EnableMessageType(NetIncomingMessageType.ConnectionApproval);
+
             m_server = new NetServer(config);
             m_server.Start();
             Console.WriteLine("Server Started");
@@ -63,10 +66,10 @@ namespace ChatNetworking
 
                                 // Get participant name and add them to the participant list.
                                 string newParticipantName = incomingMessage.ReadString();
-                                m_ParticipantList.Add(new Participant(newParticipantName, incomingMessage.SenderConnection));
+                                m_ParticipantList.Add(new Participant(newParticipantName, incomingMessage.SenderEndPoint.ToString()));
 
                                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
-                                outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT);
+                                outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_UPDATED_PARTICIPANT_LIST);
                                 outgoingMessage.Write(m_ParticipantList.Count);
 
                                 foreach (Participant participant in m_ParticipantList)
@@ -85,6 +88,29 @@ namespace ChatNetworking
                             }
                             break;
                         }
+                        case NetIncomingMessageType.StatusChanged:
+                        {
+                            switch (incomingMessage.SenderConnection.Status)
+                            {
+                                // Disconnected state will be reported for two known conditions:
+                                //   1. If participant deliberately disconnects - handled by Data message type with PacketTypes.CLIENT_DISCONNECTING enum.
+                                //   2. If participant times out - the participant's client won't send any info about it disconnecting,
+                                //      so server will deem that connection lost. Depends upon server config's ConnectionTimeout and PingInterval values
+                                //      as to how long it will take for a client's connection to timeout.
+                                case NetConnectionStatus.Disconnected:
+                                {
+                                    Console.WriteLine("Server: state change: client disconnected");
+                                    RemoveParticipantFromList(incomingMessage.SenderEndPoint.ToString(), DisconnectReason.Timeout);
+                                    break;
+                                }
+                                default:
+                                {
+                                    Console.WriteLine("Server: state change [" + incomingMessage.SenderConnection.Status.ToString() + "]");
+                                    break;
+                                }
+                            }
+                            break;
+                        }
                         // Data type is for messages manually sent from the client (i.e. participant's messages).
                         case NetIncomingMessageType.Data:
                         {
@@ -97,7 +123,8 @@ namespace ChatNetworking
                                 ParticipantMessage messageToBeRelayed = new ParticipantMessage();
                                 incomingMessage.ReadAllProperties(messageToBeRelayed);
 
-                                Console.WriteLine("Server: relaying message from [" + messageToBeRelayed.Sender + "]: [" + messageToBeRelayed.Message + "]");
+                                Console.WriteLine("Server: relaying message from [" + messageToBeRelayed.SenderName + "]: ["
+                                                                                    + messageToBeRelayed.Message + "]");
 
                                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
                                 outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
@@ -106,20 +133,10 @@ namespace ChatNetworking
                                 // This results in a client that sends a message to receive it again.
                                 m_server.SendMessage(outgoingMessage, m_server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
                             }
-                            else if (dataMessageType == (byte)PacketTypes.PARTICIPANT_DISCONNECTING)
+                            else if (dataMessageType == (byte)PacketTypes.CLIENT_DISCONNECTING)
                             {
-                                ParticipantMessage disconnectMessage = new ParticipantMessage();
-                                incomingMessage.ReadAllProperties(disconnectMessage);
-
-                                for (int index = 0; index < m_ParticipantList.Count; index++)
-                                {
-                                    if (disconnectMessage.Sender == m_ParticipantList[index].Name)
-                                    {
-                                        Console.WriteLine("Server: removing " + disconnectMessage.Sender + " from participant list");
-                                        m_ParticipantList.RemoveAt(index);
-                                        break;
-                                    }
-                                }
+                                Console.WriteLine("Server: client decided to disconnect");
+                                RemoveParticipantFromList(incomingMessage.SenderEndPoint.ToString(), DisconnectReason.UserDisconnect);
                             }
                             else
                             {
@@ -138,10 +155,30 @@ namespace ChatNetworking
 
                 SendParticipantListIfChanged();
 
-                Thread.Sleep(Constants.MAIN_LOOP_DELAY_MS);
+                Thread.Sleep(SharedConstants.MAIN_LOOP_DELAY_MS);
             }
 
             m_server.Shutdown("Server stopping");
+        }
+
+        /// <summary>
+        /// Removes participant from list based on endpoint, as these are uniquely identifiable, unlike names.
+        /// </summary>
+        /// <param name="_participantEndPoint">Unique IP:port combination to be removed</param>
+        /// <param name="_disconnectReason">Reason for disconnecting. Future use is to notify other participants
+        ///                                 why they left, such as timeout, or simply closed the application.</param>
+        private void RemoveParticipantFromList(string _participantEndPoint, DisconnectReason _disconnectReason)
+        {
+            for (int index = 0; index < m_ParticipantList.Count; index++)
+            {
+                if (_participantEndPoint == m_ParticipantList[index].EndPoint)
+                {
+                    Console.WriteLine("Server: removing " + m_ParticipantList[index].Name
+                                      + " from participant list, disconnect reason [" + _disconnectReason.ToString() + "]");
+                    m_ParticipantList.RemoveAt(index);
+                    break;
+                }
+            }
         }
 
 
@@ -152,7 +189,7 @@ namespace ChatNetworking
                 m_lastConnectedParticipantCount = m_server.ConnectionsCount;
 
                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
-                outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT);
+                outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_UPDATED_PARTICIPANT_LIST);
                 outgoingMessage.Write(m_ParticipantList.Count);
 
                 foreach (Participant participant in m_ParticipantList)
