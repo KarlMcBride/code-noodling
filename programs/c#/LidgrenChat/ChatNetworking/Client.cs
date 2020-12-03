@@ -177,7 +177,7 @@ namespace ChatNetworking
             ParticipantMessage messageContents = new ParticipantMessage(m_name, "DISCONNECTING");
 
             outboundMessage.WriteAllProperties(messageContents);
-            m_client.SendMessage(outboundMessage, NetDeliveryMethod.ReliableOrdered);
+            m_client.SendMessage(outboundMessage, SharedConstants.DELIVERY_METHOD);
         }
     }
 }

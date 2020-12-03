@@ -81,9 +81,7 @@ namespace ChatNetworking
                                 //    - byte            : packet type (PacketTypes.NOTIFY_CLIENTS_OF_NEW_PARTICIPANT).
                                 //    - int n           : number of participants now present.
                                 //    - participant * n : participant object containing their name and connection ID.
-
-                                // Reliable = each packet arrives in order they were sent.
-                                m_server.SendMessage(outgoingMessage, incomingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered, 0);
+                                SendMessageToSingleParticipant(outgoingMessage, incomingMessage.SenderConnection);
                                 Console.WriteLine("Server: approved new connection [" + newParticipantName + "]");
                             }
                             break;
@@ -129,9 +127,7 @@ namespace ChatNetworking
                                 NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
                                 outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
                                 outgoingMessage.WriteAllProperties(messageToBeRelayed);
-                                // Using 'm_server.Connections' as this contains connections for each connected client.
-                                // This results in a client that sends a message to receive it again.
-                                m_server.SendMessage(outgoingMessage, m_server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
+                                SendMessageToAllParticipants(outgoingMessage);
                             }
                             else if (dataMessageType == (byte)PacketTypes.CLIENT_DISCONNECTING)
                             {
@@ -164,7 +160,7 @@ namespace ChatNetworking
         /// <summary>
         /// Removes participant from list based on endpoint, as these are uniquely identifiable, unlike names.
         /// </summary>
-        /// <param name="_participantEndPoint">Unique IP:port combination to be removed</param>
+        /// <param name="_participantEndPoint">Unique IP:port combination to be removed.</param>
         /// <param name="_disconnectReason">Reason for disconnecting. Future use is to notify other participants
         ///                                 why they left, such as timeout, or simply closed the application.</param>
         private void RemoveParticipantFromList(string _participantEndPoint, DisconnectReason _disconnectReason)
@@ -173,12 +169,28 @@ namespace ChatNetworking
             {
                 if (_participantEndPoint == m_ParticipantList[index].EndPoint)
                 {
+                    SendParticipantDisconnectedMessageToAll(m_ParticipantList[index].Name, _disconnectReason);
                     Console.WriteLine("Server: removing " + m_ParticipantList[index].Name
                                       + " from participant list, disconnect reason [" + _disconnectReason.ToString() + "]");
                     m_ParticipantList.RemoveAt(index);
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Builds and sends a message to all connected participants to inform them that a participant has left,
+        /// and the reason why.
+        /// </summary>
+        /// <param name="_dcParticipantName">Name of paricipant who disconnected.</param>
+        /// <param name="_disconnectReason">Reason for disconnecting.</param>
+        private void SendParticipantDisconnectedMessageToAll(string _dcParticipantName, DisconnectReason _disconnectReason)
+        {
+            ParticipantMessage disconnectMessage = new ParticipantMessage(_dcParticipantName, "disconnected (" + _disconnectReason.ToString() + ")");
+            NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
+            outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
+            outgoingMessage.WriteAllProperties(disconnectMessage);
+            SendMessageToAllParticipants(outgoingMessage);
         }
 
 
@@ -196,13 +208,32 @@ namespace ChatNetworking
                 {
                     outgoingMessage.WriteAllProperties(participant);
                 }
-                if (m_server.ConnectionsCount > 0)
-                {
-                    m_server.SendMessage(outgoingMessage, m_server.Connections, NetDeliveryMethod.ReliableOrdered, 0);
-                }
+
+                SendMessageToAllParticipants(outgoingMessage);
             }
         }
 
+        /// <summary>
+        /// Sends the passed in outgoing message message to a single participant's endpoint.
+        /// </summary>
+        /// <param name="_outgoingMessage">Built message to be sent out.</param>
+        /// <param name="_endPoint">Particpant end point to send message to e.g. sourced from incoming message sender connection.</param>
+        private void SendMessageToSingleParticipant(NetOutgoingMessage _outgoingMessage, NetConnection _endPoint)
+        {
+            m_server.SendMessage(_outgoingMessage, _endPoint, SharedConstants.DELIVERY_METHOD);
+        }
+
+        /// <summary>
+        /// Sends the passed in outgoing message message all currently connected participants.
+        /// </summary>
+        /// <param name="_outgoingMessage">Built message to be sent out.</param>
+        private void SendMessageToAllParticipants(NetOutgoingMessage _outgoingMessage)
+        {
+            if (m_server.ConnectionsCount > 0)
+            {
+                m_server.SendMessage(_outgoingMessage, m_server.Connections, SharedConstants.DELIVERY_METHOD, ServerConstants.SEQUENCE_CHANNEL);
+            }
+        }
 
         public void Stop()
         {
