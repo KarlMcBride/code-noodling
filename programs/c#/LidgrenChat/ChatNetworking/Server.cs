@@ -83,6 +83,8 @@ namespace ChatNetworking
                                 //    - participant * n : participant object containing their name and connection ID.
                                 SendMessageToSingleParticipant(outgoingMessage, incomingMessage.SenderConnection);
                                 Console.WriteLine("Server: approved new connection [" + newParticipantName + "]");
+
+                                SendParticipantConnectedMessageToAll(newParticipantName);
                             }
                             break;
                         }
@@ -177,6 +179,21 @@ namespace ChatNetworking
                 }
             }
         }
+
+
+        /// <summary>
+        /// Builds and sends a message to all connected participants to inform them that a participant has joined.
+        /// </summary>
+        /// <param name="_conParticipantName">Name of paricipant who connected.</param>
+        private void SendParticipantConnectedMessageToAll(string _conParticipantName)
+        {
+            ParticipantMessage connectMessage = new ParticipantMessage(_conParticipantName, "connected");
+            NetOutgoingMessage outgoingMessage = m_server.CreateMessage();
+            outgoingMessage.Write((byte)PacketTypes.NOTIFY_CLIENTS_OF_NEW_MESSAGE);
+            outgoingMessage.WriteAllProperties(connectMessage);
+            SendMessageToAllParticipants(outgoingMessage);
+        }
+
 
         /// <summary>
         /// Builds and sends a message to all connected participants to inform them that a participant has left,
