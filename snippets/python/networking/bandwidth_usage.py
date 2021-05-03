@@ -1,4 +1,5 @@
 
+import matplotlib.pyplot as plt
 import psutil
 import sys
 import time
@@ -13,17 +14,27 @@ def print_msg(*args,end='\n'):
 def main():
     last_byte_count = 0
 
-    while True:
+    bandwidth_list = []
+
+    for index in range (0,6):
         new_byte_count = psutil.net_io_counters().bytes_sent + psutil.net_io_counters().bytes_recv
 
         if last_byte_count != 0:
             bytes_used = new_byte_count - last_byte_count
             kbit_sec_used = convert_bytes_sec_to_kbit_sec(bytes_used)
+            bandwidth_list.append(kbit_sec_used)
             print(str(kbit_sec_used) + " kbits/sec")
 
         last_byte_count = new_byte_count
 
         time.sleep(1)
+
+    plt.plot(bandwidth_list, marker='o')
+    plt.xlabel("Index")
+    plt.ylabel("Bandwidth (kbits/sec)")
+    plt.grid()
+    plt.show()
+    plt.savefig("bandwidth.jpg")
 
 def convert_bytes_sec_to_kbit_sec(bytes):
     return int( (8 * bytes) / 1024 )
